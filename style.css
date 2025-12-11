@@ -1,16 +1,7 @@
-/* Global reset */
-
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-/* Basic layout – mobile first */
-
-html,
-body {
-    height: 100%;
 }
 
 body {
@@ -18,25 +9,19 @@ body {
     background: radial-gradient(circle at top, #ffe3f1, #f6f1ff);
     color: #222;
     min-height: 100vh;
-    min-height: 100dvh; /* Better on modern mobile browsers */
     display: flex;
     justify-content: center;
     align-items: stretch;
-    overflow-x: hidden; /* No horizontal scroll on phones */
 }
-
-/* Main game wrapper */
 
 .game-wrapper {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 480px;     /* Fits most phones very well */
+    max-width: 480px;
     min-height: 100vh;
-    min-height: 100dvh;
-    padding: 10px 12px;
-    gap: 10px;
-    margin: 0 auto;
+    padding: 12px;
+    gap: 12px;
 }
 
 /* Top bar */
@@ -51,12 +36,11 @@ body {
     font-weight: 700;
     font-size: 1.2rem;
     text-align: center;
-    line-height: 1.2;
 }
 
 .health-bar {
     width: 100%;
-    height: 14px;
+    height: 16px;
     border-radius: 999px;
     background: #f0d6d6;
     overflow: hidden;
@@ -67,11 +51,11 @@ body {
     height: 100%;
     width: 100%;
     background: linear-gradient(90deg, #48c774, #ffdd57, #ff3860);
-    transition: width 0.2s ease;
+    transition: width 0.25s ease;
 }
 
 .health-text {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     text-align: center;
 }
 
@@ -82,22 +66,18 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 0;
 }
 
 .buddy-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
-/* Buddy sizing tuned for phones */
-
 .buddy {
-    width: 42vw;             /* Scales with screen width */
-    max-width: 170px;        /* But not too big on large phones */
-    min-width: 130px;        /* Not too tiny on small screens */
+    width: 150px;
+    height: 220px;
     position: relative;
     cursor: pointer;
     touch-action: manipulation;
@@ -106,11 +86,9 @@ body {
     align-items: center;
 }
 
-/* Face */
-
 .buddy .face {
-    width: 100%;
-    aspect-ratio: 1 / 1;     /* Perfect circle regardless of size */
+    width: 120px;
+    height: 120px;
     background: #ffe0c2;
     border-radius: 50%;
     border: 3px solid rgba(0,0,0,0.15);
@@ -120,92 +98,77 @@ body {
     align-items: center;
 }
 
-/* Eyes */
-
 .eye {
-    width: 14%;
-    height: 14%;
+    width: 16px;
+    height: 16px;
     background: #222;
     border-radius: 50%;
     position: absolute;
-    top: 38%;
+    top: 40px;
 }
 
 .eye.left {
-    left: 25%;
+    left: 35px;
 }
 
 .eye.right {
-    right: 25%;
+    right: 35px;
 }
-
-/* Mouth – default (neutral/happy) */
 
 .mouth {
     position: absolute;
-    bottom: 20%;
-    width: 30%;
-    height: 18%;
+    bottom: 25px;
+    width: 40px;
+    height: 24px;
     border-radius: 0 0 40px 40px;
     border-bottom: 4px solid #d14;
 }
 
-/* Mouth – sad when dead */
-
-.mouth.sad {
-    border-radius: 40px 40px 0 0;
-    border-bottom: none;
-    border-top: 4px solid #d14;
-    bottom: 26%;
-}
-
 /* Body */
 
-/* Body – fixed for phone scaling */
 .buddy .body {
-    width: 60%;
-    aspect-ratio: 1 / 1.3; /* Ensures a proper full body shape */
-    margin-top: -5%;
+    margin-top: -10px;
+    width: 80px;
+    height: 100px;
+    background: #8ec5fc;
     background: linear-gradient(180deg, #8ec5fc, #e0c3fc);
     border-radius: 40px;
     border: 3px solid rgba(0,0,0,0.15);
 }
 
-
 /* Hit animation */
 
 .buddy.hit {
-    animation: shake 0.18s linear 1;
+    animation: shake 0.2s linear 1;
 }
 
 @keyframes shake {
     0%   { transform: translateX(0); }
-    25%  { transform: translateX(-5px); }
-    50%  { transform: translateX(5px); }
-    75%  { transform: translateX(-3px); }
+    25%  { transform: translateX(-6px); }
+    50%  { transform: translateX(6px); }
+    75%  { transform: translateX(-4px); }
     100% { transform: translateX(0); }
 }
 
 /* Speech bubble */
 
 .speech {
-    min-height: 38px;
-    max-width: 92%;
+    min-height: 40px;
+    max-width: 280px;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     padding: 6px 10px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* Controls – designed for thumbs */
+/* Controls */
 
 .controls {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-bottom: 4px;
 }
 
 .tool-row {
@@ -215,18 +178,14 @@ body {
     justify-content: center;
 }
 
-.tool-btn,
-.reset-btn {
+.tool-btn, .reset-btn {
     border: none;
     padding: 8px 10px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     border-radius: 999px;
     background: #ffffff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: pointer;
-    flex: 1 1 calc(50% - 12px); /* Two per row on most phones */
-    max-width: 48%;
-    text-align: center;
 }
 
 .tool-btn.active {
@@ -245,44 +204,20 @@ body {
 }
 
 .reset-btn {
-    flex: 0 0 auto;
-    max-width: 60%;
     background: #ffeaa7;
 }
 
-/* Slight adjustments on very small phones (e.g., 320px wide) */
-
-@media (max-width: 360px) {
-    .title {
-        font-size: 1.05rem;
-    }
-
-    .speech {
-        font-size: 0.8rem;
-        padding: 5px 8px;
-    }
-
-    .tool-btn,
-    .reset-btn {
-        font-size: 0.8rem;
-        padding: 7px 8px;
-    }
-}
-
-/* On larger devices (small tablets / big phones) make buddy a bit bigger */
+/* Slightly bigger on larger screens */
 
 @media (min-width: 480px) {
     .buddy {
-        max-width: 190px;
+        width: 180px;
+        height: 260px;
     }
 
-    .speech {
-        font-size: 0.9rem;
-    }
-
-    .tool-btn,
-    .reset-btn {
-        font-size: 0.9rem;
+    .buddy .face {
+        width: 140px;
+        height: 140px;
     }
 }
 
