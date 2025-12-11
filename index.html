@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Angry At San</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="game-wrapper">
+        <header class="top-bar">
+            <div class="title">Angry At San</div>
+            <div class="health-bar">
+                <div class="health-fill" id="health-fill"></div>
+            </div>
+            <div class="health-text" id="health-text">HP: 100%</div>
+        </header>
+
+        <main class="play-area">
+            <div class="buddy-container">
+                <div class="buddy" id="buddy">
+                    <div class="face">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="body"></div>
+                </div>
+                <div class="speech" id="speech">Tap me if you are mad…</div>
+            </div>
+        </main>
+
+        <footer class="controls">
+            <div class="tool-row">
+                <button class="tool-btn active" data-tool="slap">👋 Slap</button>
+                <button class="tool-btn" data-tool="pillow">🛏 Pillow</button>
+                <button class="tool-btn" data-tool="water">💧 Water</button>
+                <button class="tool-btn" data-tool="mega">💥 Mega Hit</button>
+            </div>
+            <div class="bottom-row">
+                <button id="reset-btn" class="reset-btn">Reset San</button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
