@@ -124,6 +124,14 @@ body {
     border-bottom: 4px solid #d14;
 }
 
+.mouth.sad {
+    border-radius: 40px 40px 0 0;
+    border-bottom: none;
+    border-top: 4px solid #d14;
+    bottom: 35px; /* slightly higher */
+}
+
+
 /* Body */
 
 .buddy .body {
