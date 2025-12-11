@@ -1,0 +1,222 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #ffe3f1, #f6f1ff);
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.game-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    padding: 12px;
+    gap: 12px;
+}
+
+/* Top bar */
+
+.top-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.health-bar {
+    width: 100%;
+    height: 16px;
+    border-radius: 999px;
+    background: #f0d6d6;
+    overflow: hidden;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+}
+
+.health-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #48c774, #ffdd57, #ff3860);
+    transition: width 0.25s ease;
+}
+
+.health-text {
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Play area & buddy */
+
+.play-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.buddy-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.buddy {
+    width: 150px;
+    height: 220px;
+    position: relative;
+    cursor: pointer;
+    touch-action: manipulation;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.buddy .face {
+    width: 120px;
+    height: 120px;
+    background: #ffe0c2;
+    border-radius: 50%;
+    border: 3px solid rgba(0,0,0,0.15);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.eye {
+    width: 16px;
+    height: 16px;
+    background: #222;
+    border-radius: 50%;
+    position: absolute;
+    top: 40px;
+}
+
+.eye.left {
+    left: 35px;
+}
+
+.eye.right {
+    right: 35px;
+}
+
+.mouth {
+    position: absolute;
+    bottom: 25px;
+    width: 40px;
+    height: 24px;
+    border-radius: 0 0 40px 40px;
+    border-bottom: 4px solid #d14;
+}
+
+/* Body */
+
+.buddy .body {
+    margin-top: -10px;
+    width: 80px;
+    height: 100px;
+    background: #8ec5fc;
+    background: linear-gradient(180deg, #8ec5fc, #e0c3fc);
+    border-radius: 40px;
+    border: 3px solid rgba(0,0,0,0.15);
+}
+
+/* Hit animation */
+
+.buddy.hit {
+    animation: shake 0.2s linear 1;
+}
+
+@keyframes shake {
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(-6px); }
+    50%  { transform: translateX(6px); }
+    75%  { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+}
+
+/* Speech bubble */
+
+.speech {
+    min-height: 40px;
+    max-width: 280px;
+    text-align: center;
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Controls */
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tool-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
+.tool-btn, .reset-btn {
+    border: none;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.tool-btn.active {
+    background: #ffd1e6;
+    box-shadow: 0 0 0 2px #ff8ac4;
+}
+
+.tool-btn:active,
+.reset-btn:active {
+    transform: translateY(1px);
+}
+
+.bottom-row {
+    display: flex;
+    justify-content: center;
+}
+
+.reset-btn {
+    background: #ffeaa7;
+}
+
+/* Slightly bigger on larger screens */
+
+@media (min-width: 480px) {
+    .buddy {
+        width: 180px;
+        height: 260px;
+    }
+
+    .buddy .face {
+        width: 140px;
+        height: 140px;
+    }
+}
