@@ -6,6 +6,8 @@ const healthText = document.getElementById("health-text");
 const speech = document.getElementById("speech");
 const toolButtons = document.querySelectorAll(".tool-btn");
 const resetBtn = document.getElementById("reset-btn");
+const mouth = document.querySelector(".mouth");
+
 
 let health = 100;
 let currentTool = "Punch";
@@ -58,8 +60,15 @@ function updateHealth() {
     if (health === 0) {
         speech.textContent = "You win. I am now calm… right?";
         buddy.classList.remove("hit");
+
+        // Make sad face
+        mouth.classList.add("sad");
+    } else {
+        // Ensure normal face if not dead
+        mouth.classList.remove("sad");
     }
 }
+
 
 function randomMessage(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
