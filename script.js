@@ -8,44 +8,44 @@ const toolButtons = document.querySelectorAll(".tool-btn");
 const resetBtn = document.getElementById("reset-btn");
 
 let health = 100;
-let currentTool = "slap";
+let currentTool = "Punch";
 
 // Tool definitions
 const tools = {
-    slap: {
-        name: "Slap",
-        damage: 8,
+    punch: {
+        name: "Punch",
+        damage: 10,
         messages: [
-            "Ouch! That was a slap!",
-            "Hey, I said gentle!",
-            "My cheek is still ringing…"
+            "Ouch! That gonna leave a purple mark!",
+            "Yara, your not hitting hard enough!",
+            "I can't feel my face"
         ]
     },
-    pillow: {
-        name: "Pillow",
-        damage: 4,
+    bat: {
+        name: "Bat",
+        damage: 15,
         messages: [
-            "Fluffy, but still hurts!",
-            "Pillow fight champion!",
-            "Soft… but rude."
+            "Yara, I crave the crulity of your bat!",
+            "I think you broke my legs!",
+            "okay that one did not hurt."
         ]
     },
-    water: {
-        name: "Water",
-        damage: 6,
-        messages: [
-            "Now I am wet and sad.",
-            "Cold shower unlocked.",
-            "I did not order this bath."
-        ]
-    },
-    mega: {
-        name: "Mega Hit",
+    knife: {
+        name: "Knife",
         damage: 20,
         messages: [
-            "OK WOW. That was a lot.",
-            "Critical emotional damage.",
-            "I surrender, you win."
+            "NOOO my hands, now I can't text Yara.",
+            "Yara I think thats enough, you don't need two kidneys.",
+            "Yara please no more."
+        ]
+    },
+    gun: {
+        name: "Gun",
+        damage: 99,
+        messages: [
+            "Just finish it off im already dying here.",
+            "I did not know you hated me that much.",
+            "You might as well just kill me in real life"
         ]
     }
 };
@@ -107,7 +107,7 @@ toolButtons.forEach(btn => {
 resetBtn.addEventListener("click", () => {
     health = 100;
     updateHealth();
-    speech.textContent = "New round. I still love you, even angry.";
+    speech.textContent = "New round. I please don't be angry.";
 });
 
 // Initial state
