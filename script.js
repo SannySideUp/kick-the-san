@@ -10,7 +10,7 @@ const mouth = document.querySelector(".mouth");
 
 
 let health = 100;
-let currentTool = "Punch";
+let currentTool = "punch";
 
 // Tool definitions
 const tools = {
@@ -45,7 +45,7 @@ const tools = {
         name: "Gun",
         damage: 99,
         messages: [
-            "Just finish it off im already dying here.",
+            "Just finish it off I'm already dying here.",
             "I did not know you hated me that much.",
             "You might as well just kill me in real life"
         ]
@@ -116,7 +116,7 @@ toolButtons.forEach(btn => {
 resetBtn.addEventListener("click", () => {
     health = 100;
     updateHealth();
-    speech.textContent = "New round. I please don't be angry.";
+    speech.textContent = "New round. please don't be too angry this time.";
 });
 
 // Initial state
