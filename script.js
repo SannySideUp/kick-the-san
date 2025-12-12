@@ -58,7 +58,7 @@ function updateHealth() {
     healthText.textContent = "HP: " + health + "%";
 
     if (health === 0) {
-        speech.textContent = "You win. I am now calm… right?";
+        speech.textContent = "You win. Yara is now calm… right?";
         buddy.classList.remove("hit");
 
         // Make sad face
