@@ -27,7 +27,7 @@ const tools = {
         name: "Bat",
         damage: 15,
         messages: [
-            "Yara, I crave the crulity of your bat!",
+            "Yara, I crave the cruelty of your bat!",
             "I think you broke my legs!",
             "okay that one did not hurt."
         ]
