@@ -94,7 +94,7 @@ const sfx = {
     knife: createAudioPool("sounds/knife.mp3", 4, 0.6),
     gun: createAudioPool("sounds/gun.mp3", 4, 0.65),
     squish: createAudioPool("sounds/squish.mp3", 4, 0.6),
-    //dead: createAudioPool("sounds/dead.mp3", 2, 0.6)
+    dead: createAudioPool("sounds/dead.mp3", 2, 0.6)
 };
 
 /* ---------------- HELPERS ---------------- */
