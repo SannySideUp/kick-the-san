@@ -1,30 +1,58 @@
+/* -------------------------
+   Reset + iPhone-safe base
+-------------------------- */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: radial-gradient(circle at top, #ffe3f1, #f6f1ff);
     color: #222;
-    min-height: 100vh;
+
     display: flex;
     justify-content: center;
     align-items: stretch;
+
+    overflow-x: hidden;
+
+    /* iPhone safe areas (notch + home indicator) */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
+
+/* -------------------------
+   App wrapper
+-------------------------- */
 
 .game-wrapper {
-    display: flex;
-    flex-direction: column;
     width: 100%;
     max-width: 480px;
+
+    /* iPhone viewport stability */
     min-height: 100vh;
-    padding: 12px;
-    gap: 12px;
+    min-height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    /* Extra room so bottom controls never sit on the home indicator */
+    padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
 }
 
-/* Top bar */
+/* -------------------------
+   Top bar
+-------------------------- */
 
 .top-bar {
     display: flex;
@@ -33,137 +61,192 @@ body {
 }
 
 .title {
-    font-weight: 700;
-    font-size: 1.2rem;
     text-align: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    line-height: 1.1;
 }
 
 .health-bar {
-    width: 100%;
-    height: 16px;
-    border-radius: 999px;
+    height: 14px;
     background: #f0d6d6;
+    border-radius: 999px;
     overflow: hidden;
-    box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.08);
 }
 
 .health-fill {
     height: 100%;
     width: 100%;
     background: linear-gradient(90deg, #48c774, #ffdd57, #ff3860);
-    transition: width 0.25s ease;
+    transition: width 0.2s ease;
 }
 
 .health-text {
-    font-size: 0.9rem;
     text-align: center;
+    font-size: 0.85rem;
 }
 
-/* Play area & buddy */
+/* -------------------------
+   Play area
+-------------------------- */
 
 .play-area {
     flex: 1;
     display: flex;
-    align-items: center;
     justify-content: center;
+
+    /* On iPhone, true centering can feel “floaty” because of bottom bars.
+       This places the character slightly higher but still centered. */
+    align-items: center;
 }
 
+/* Keep the stack tight and predictable */
 .buddy-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
+/* -------------------------
+   Buddy (character)
+-------------------------- */
+
 .buddy {
-    width: 150px;
-    height: 220px;
-    position: relative;
-    cursor: pointer;
-    touch-action: manipulation;
+    /* iPhone-friendly sizing: scales smoothly across 320–430 widths */
+    width: clamp(140px, 42vw, 210px);
+
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    cursor: pointer;
+    touch-action: manipulation;
+
+    /* IMPORTANT: reserve space for legs so speech never overlaps */
+    padding-bottom: 58px;
 }
 
-.buddy .face {
-    width: 120px;
-    height: 120px;
+/* Head */
+.face {
+    width: 100%;
+    aspect-ratio: 1 / 1;
     background: #ffe0c2;
     border-radius: 50%;
     border: 3px solid rgba(0,0,0,0.15);
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
+/* Eyes */
 .eye {
-    width: 16px;
-    height: 16px;
+    width: 14%;
+    height: 14%;
     background: #222;
     border-radius: 50%;
     position: absolute;
-    top: 40px;
+    top: 38%;
 }
 
-.eye.left {
-    left: 35px;
-}
+.eye.left { left: 25%; }
+.eye.right { right: 25%; }
 
-.eye.right {
-    right: 35px;
-}
-
+/* Mouth */
 .mouth {
     position: absolute;
-    bottom: 25px;
-    width: 40px;
-    height: 24px;
-    border-radius: 0 0 40px 40px;
+    bottom: 20%;
+    width: 30%;
+    height: 18%;
     border-bottom: 4px solid #d14;
+    border-radius: 0 0 40px 40px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-/* Body */
+.mouth.sad {
+    border-bottom: none;
+    border-top: 4px solid #d14;
+    border-radius: 40px 40px 0 0;
+    bottom: 26%;
+}
 
-.buddy .body {
-    margin-top: -10px;
-    width: 80px;
-    height: 100px;
-    background: #8ec5fc;
+/* Torso */
+.body {
+    width: 60%;
+    aspect-ratio: 1 / 1.4;
     background: linear-gradient(180deg, #8ec5fc, #e0c3fc);
     border-radius: 40px;
     border: 3px solid rgba(0,0,0,0.15);
+    position: relative;
+    margin-top: -6%;
 }
 
-/* Hit animation */
+/* Arms */
+.arm {
+    position: absolute;
+    top: 25%;
+    width: 30%;
+    height: 18%;
+    background: #ffe0c2;
+    border-radius: 999px;
+    border: 3px solid rgba(0,0,0,0.15);
+}
 
+.arm.left  { left: -22%; }
+.arm.right { right: -22%; }
+
+/* Legs */
+.leg {
+    position: absolute;
+    bottom: -25%;
+    width: 24%;
+    height: 32%;
+    background: #8ec5fc;
+    border-radius: 999px;
+    border: 3px solid rgba(0,0,0,0.15);
+}
+
+.leg.left  { left: 12%; }
+.leg.right { right: 12%; }
+
+/* Hit animation */
 .buddy.hit {
-    animation: shake 0.2s linear 1;
+    animation: shake 0.18s linear;
 }
 
 @keyframes shake {
     0%   { transform: translateX(0); }
-    25%  { transform: translateX(-6px); }
-    50%  { transform: translateX(6px); }
-    75%  { transform: translateX(-4px); }
+    25%  { transform: translateX(-5px); }
+    50%  { transform: translateX(5px); }
+    75%  { transform: translateX(-3px); }
     100% { transform: translateX(0); }
 }
 
-/* Speech bubble */
+/* -------------------------
+   Speech bubble
+-------------------------- */
 
 .speech {
-    min-height: 40px;
-    max-width: 280px;
-    text-align: center;
-    font-size: 0.95rem;
-    padding: 6px 10px;
+    background: rgba(255,255,255,0.92);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    text-align: center;
+    max-width: min(92vw, 420px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    line-height: 1.25;
+
+    /* Was too large before; keep it tight and consistent */
+    margin-top: 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Controls */
+/* -------------------------
+   Controls (buttons)
+-------------------------- */
 
 .controls {
     display: flex;
@@ -172,20 +255,23 @@ body {
 }
 
 .tool-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
 }
 
-.tool-btn, .reset-btn {
-    border: none;
-    padding: 8px 10px;
+.tool-btn,
+.reset-btn,
+.audio-btn {
+    padding: 10px 10px;
     font-size: 0.9rem;
     border-radius: 999px;
-    background: #ffffff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
     cursor: pointer;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .tool-btn.active {
@@ -193,31 +279,202 @@ body {
     box-shadow: 0 0 0 2px #ff8ac4;
 }
 
-.tool-btn:active,
-.reset-btn:active {
-    transform: translateY(1px);
-}
-
+.audio-row,
 .bottom-row {
     display: flex;
     justify-content: center;
+}
+
+.audio-btn,
+.reset-btn {
+    width: min(60%, 260px);
 }
 
 .reset-btn {
     background: #ffeaa7;
 }
 
-/* Slightly bigger on larger screens */
+.tool-btn:active,
+.reset-btn:active,
+.audio-btn:active {
+    transform: translateY(1px);
+}
 
-@media (min-width: 480px) {
-    .buddy {
-        width: 180px;
-        height: 260px;
+/* Disabled tool buttons (when dead) */
+.tool-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* -------------------------
+   Death State Polish
+-------------------------- */
+
+.buddy.dead {
+    transform: translateY(10px) rotate(2deg);
+    filter: saturate(0.7);
+}
+
+.buddy.dead .body {
+    transform: translateY(10px) rotate(-3deg);
+    transform-origin: top center;
+    opacity: 0.95;
+}
+
+/* Arms drop */
+.buddy.dead .arm.left {
+    transform: rotate(40deg) translateY(6px);
+    transform-origin: right center;
+}
+
+.buddy.dead .arm.right {
+    transform: rotate(-40deg) translateY(6px);
+    transform-origin: left center;
+}
+
+/* X eyes */
+.buddy.dead .eye {
+    background: transparent;
+    width: 18%;
+    height: 18%;
+}
+
+.buddy.dead .eye::before,
+.buddy.dead .eye::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 3px;
+    background: #222;
+    border-radius: 999px;
+    transform-origin: center;
+}
+
+.buddy.dead .eye::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.buddy.dead .eye::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* -------------------------
+   iPhone-specific tuning
+   (SE / mini / Pro / Pro Max)
+-------------------------- */
+
+/* Very small iPhones (SE / older) */
+@media (max-width: 360px) {
+    .title { font-size: 1.1rem; }
+    .tool-btn, .reset-btn, .audio-btn { font-size: 0.85rem; padding: 9px 10px; }
+    .speech { font-size: 0.85rem; padding: 7px 10px; }
+    .buddy { padding-bottom: 54px; }
+}
+
+/* Modern iPhones (390–430 wide) */
+@media (min-width: 390px) {
+    .title { font-size: 1.25rem; }
+    .speech { font-size: 0.95rem; }
+    .tool-btn, .reset-btn, .audio-btn { font-size: 0.95rem; }
+}
+
+
+/* ---------- Tomato Throw ---------- */
+
+.tomato {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    background: #e53935;
+    border-radius: 50%;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.15);
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Small green top */
+.tomato::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 10px;
+    height: 6px;
+    background: #43a047;
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+/* Splat effect */
+.tomato.splat {
+    animation: splat 0.25s ease-out forwards;
+}
+
+@keyframes splat {
+    0% {
+        transform: scale(1);
+        opacity: 1;
     }
-
-    .buddy .face {
-        width: 140px;
-        height: 140px;
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
     }
 }
 
+/* ---------- Tomato Stains ---------- */
+
+.tomato-stain {
+    position: absolute;
+    width: 22px;
+    height: 18px;
+    background: #c62828;
+    border-radius: 50% 50% 45% 45%;
+    opacity: 0.85;
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.2);
+}
+
+/* Slight variation blobs */
+.tomato-stain::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    top: 4px;
+    width: 10px;
+    height: 8px;
+    background: #b71c1c;
+    border-radius: 50%;
+    opacity: 0.8;
+}
+
+/* ---------- Tears on Hit ---------- */
+
+.tear {
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    background: linear-gradient(180deg, rgba(120,190,255,0.9), rgba(120,190,255,0.6));
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.9;
+    animation: tearFall 0.9s ease-out forwards;
+    z-index: 6; /* above stains, below UI */
+}
+
+@keyframes tearFall {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.9;
+    }
+    70% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(18px) scale(0.9);
+        opacity: 0;
+    }
+}

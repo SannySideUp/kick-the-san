@@ -1,4 +1,4 @@
-// Simple "anger buddy" logic
+// Angry At San – FULL FINAL LOGIC (weapons, sounds, tomatoes, tears, death polish)
 
 const buddy = document.getElementById("buddy");
 const healthFill = document.getElementById("health-fill");
@@ -7,12 +7,16 @@ const speech = document.getElementById("speech");
 const toolButtons = document.querySelectorAll(".tool-btn");
 const resetBtn = document.getElementById("reset-btn");
 const mouth = document.querySelector(".mouth");
-
+const muteBtn = document.getElementById("mute-btn");
+let cryingInterval = null;
 
 let health = 100;
 let currentTool = "punch";
+let isMuted = false;
+let hasPlayedDeathSound = false;
 
-// Tool definitions
+/* ---------------- TOOLS ---------------- */
+
 const tools = {
     punch: {
         name: "Punch",
@@ -45,12 +49,150 @@ const tools = {
         name: "Gun",
         damage: 99,
         messages: [
-            "Just finish it off I'm already dying here.",
+            "Just finish it off im already dying here.",
             "I did not know you hated me that much.",
-            "You might as well just kill me in real life"
+            "You might as well just delete me from the screen."
+        ]
+    },
+    tomato: {
+        name: "Tomato",
+        damage: 5,
+        messages: [
+            "Ew. Tomato juice in my eyes.",
+            "That was disrespectful.",
+            "Not the face 😭"
         ]
     }
 };
+
+/* ---------------- AUDIO ---------------- */
+
+function createAudioPool(src, poolSize = 4, volume = 0.6) {
+    const pool = [];
+    for (let i = 0; i < poolSize; i++) {
+        const a = new Audio(src);
+        a.preload = "auto";
+        a.volume = volume;
+        pool.push(a);
+    }
+    return {
+        pool,
+        index: 0,
+        play() {
+            if (isMuted) return;
+            const a = pool[this.index];
+            this.index = (this.index + 1) % pool.length;
+            try { a.currentTime = 0; } catch (_) {}
+            a.play().catch(() => {});
+        }
+    };
+}
+
+const sfx = {
+    punch: createAudioPool("sounds/punch.mp3", 5, 0.55),
+    bat: createAudioPool("sounds/bat.mp3", 4, 0.6),
+    knife: createAudioPool("sounds/knife.mp3", 4, 0.6),
+    gun: createAudioPool("sounds/gun.mp3", 4, 0.65),
+    squish: createAudioPool("sounds/squish.mp3", 4, 0.6),
+    //dead: createAudioPool("sounds/dead.mp3", 2, 0.6)
+};
+
+/* ---------------- HELPERS ---------------- */
+
+function setToolsEnabled(enabled) {
+    toolButtons.forEach(btn => btn.disabled = !enabled);
+}
+
+function setMute(state) {
+    isMuted = state;
+    if (muteBtn) {
+        muteBtn.textContent = isMuted ? "🔇 Sound: OFF" : "🔊 Sound: ON";
+    }
+}
+
+/* ---------------- TEARS ---------------- */
+
+function spawnTears() {
+    const face = document.querySelector(".face");
+    if (!face) return;
+
+    const count = Math.floor(Math.random() * 3) + 2;
+
+    for (let i = 0; i < count; i++) {
+        const tear = document.createElement("div");
+        tear.className = "tear";
+
+        const xBase = Math.random() < 0.5 ? 28 : 72;
+        tear.style.left = xBase + (Math.random() * 6 - 3) + "%";
+        tear.style.top = "46%";
+
+        face.appendChild(tear);
+        setTimeout(() => tear.remove(), 1000);
+    }
+}
+
+function startCrying() {
+    if (cryingInterval) return; // already crying
+
+    cryingInterval = setInterval(() => {
+        if (health > 0 && health <= 30) {
+            spawnTears();
+        }
+    }, 700);
+}
+
+function stopCrying() {
+    if (cryingInterval) {
+        clearInterval(cryingInterval);
+        cryingInterval = null;
+    }
+}
+
+
+/* ---------------- TOMATO ---------------- */
+
+function throwTomato() {
+    const face = document.querySelector(".face");
+    if (!face) return;
+
+    const tomato = document.createElement("div");
+    tomato.className = "tomato";
+    document.body.appendChild(tomato);
+
+    const startX = window.innerWidth / 2;
+    const startY = window.innerHeight - 80;
+
+    const faceRect = face.getBoundingClientRect();
+    const offsetX = Math.random() * faceRect.width * 0.6 + faceRect.width * 0.2;
+    const offsetY = Math.random() * faceRect.height * 0.6 + faceRect.height * 0.2;
+
+    const targetX = faceRect.left + offsetX;
+    const targetY = faceRect.top + offsetY;
+
+    tomato.style.left = startX + "px";
+    tomato.style.top = startY + "px";
+
+    tomato.animate([
+        { transform: "translate(0,0) scale(1)" },
+        { transform: `translate(${targetX - startX}px, ${targetY - startY}px) scale(0.9)` }
+    ], {
+        duration: 420,
+        easing: "cubic-bezier(.4,0,.2,1)"
+    }).onfinish = () => {
+        tomato.classList.add("splat");
+        sfx.squish.play();
+
+        const stain = document.createElement("div");
+        stain.className = "tomato-stain";
+        stain.style.left = offsetX + "px";
+        stain.style.top = offsetY + "px";
+        face.appendChild(stain);
+
+        setTimeout(() => tomato.remove(), 200);
+    };
+}
+
+/* ---------------- GAME LOGIC ---------------- */
 
 function updateHealth() {
     health = Math.max(0, Math.min(100, health));
@@ -59,13 +201,27 @@ function updateHealth() {
 
     if (health === 0) {
         speech.textContent = "You win. Yara is now calm… right?";
-        buddy.classList.remove("hit");
-
-        // Make sad face
+        buddy.classList.add("dead");
         mouth.classList.add("sad");
+        setToolsEnabled(false);
+
+        stopCrying();
+        document.querySelectorAll(".tear").forEach(t => t.remove());
+
+        if (!hasPlayedDeathSound) {
+            sfx.dead.play();
+            hasPlayedDeathSound = true;
+        }
     } else {
-        // Ensure normal face if not dead
+        buddy.classList.remove("dead");
         mouth.classList.remove("sad");
+        setToolsEnabled(true);
+
+        if (health <= 30) {
+            startCrying();
+        } else {
+            stopCrying();
+        }
     }
 }
 
@@ -75,15 +231,19 @@ function randomMessage(arr) {
 }
 
 function triggerHit() {
-    if (health <= 0) {
-        speech.textContent = "I am already defeated. Press reset if you want a new round.";
-        return;
-    }
+    if (health <= 0) return;
 
-    // small animation reset hack
     buddy.classList.remove("hit");
-    void buddy.offsetWidth; // force reflow
+    void buddy.offsetWidth;
     buddy.classList.add("hit");
+
+    spawnTears();
+
+    if (currentTool === "tomato") {
+        throwTomato();
+    } else if (sfx[currentTool]) {
+        sfx[currentTool].play();
+    }
 
     const tool = tools[currentTool];
     health -= tool.damage;
@@ -94,30 +254,41 @@ function triggerHit() {
     }
 }
 
-// Handle pointer (works for touch + mouse)
-buddy.addEventListener("pointerdown", (event) => {
-    event.preventDefault();
+/* ---------------- EVENTS ---------------- */
+
+buddy.addEventListener("pointerdown", e => {
+    e.preventDefault();
     triggerHit();
 });
 
-// Tool selection
 toolButtons.forEach(btn => {
     btn.addEventListener("click", () => {
         toolButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        currentTool = btn.getAttribute("data-tool");
-
-        const tool = tools[currentTool];
-        speech.textContent = "Selected: " + tool.name + ". Tap on San.";
+        currentTool = btn.dataset.tool;
+        speech.textContent = "Selected: " + tools[currentTool].name;
     });
 });
 
-// Reset
 resetBtn.addEventListener("click", () => {
     health = 100;
+    hasPlayedDeathSound = false;
     updateHealth();
-    speech.textContent = "New round. please don't be too angry this time.";
+    setToolsEnabled(true);
+    stopCrying();
+
+
+    document.querySelectorAll(".tomato-stain").forEach(s => s.remove());
+    speech.textContent = "Tap me if you are mad…";
 });
 
-// Initial state
+if (muteBtn) {
+    muteBtn.addEventListener("click", () => setMute(!isMuted));
+}
+
+/* ---------------- INIT ---------------- */
+
+setMute(false);
 updateHealth();
+toolButtons[0].classList.add("active");
+speech.textContent = "Select a tool and tap on San.";
