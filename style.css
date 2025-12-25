@@ -17,7 +17,7 @@
 
   --tap: 44px;
 
-  /* HP hue is driven by JS (0=red -> 120=green) */
+  /* HP hue driven by JS (0=red -> 120=green) */
   --hpHue: 120;
 }
 
@@ -58,7 +58,6 @@ body{
   overflow:hidden;
 }
 
-/* Generic card */
 .card{
   background: var(--card);
   border: 1px solid var(--border);
@@ -142,14 +141,14 @@ body{
   display:flex;
 }
 
-/* Play card: make it a positioning context for the toast */
+/* Play card */
 .play-card{
   width: 100%;
   padding: 14px;
   display:grid;
   place-items:center;
-  position: relative;            /* needed for absolute speech */
-  padding-bottom: 74px;          /* space reserved for the toast */
+  position: relative;
+  padding-bottom: 74px; /* room for toast */
 }
 
 .buddy-container{
@@ -158,7 +157,7 @@ body{
   place-items:center;
 }
 
-/* Buddy */
+/* Buddy character */
 .buddy{
   width: clamp(150px, 44vw, 235px);
   display:flex;
@@ -302,9 +301,7 @@ body{
 .buddy.dead .eye::before{ transform: translate(-50%,-50%) rotate(45deg); }
 .buddy.dead .eye::after{ transform: translate(-50%,-50%) rotate(-45deg); }
 
-/* =========================
-   Speech: iOS toast (FIX)
-   ========================= */
+/* Toast speech */
 .speech{
   position: absolute;
   left: 14px;
@@ -328,12 +325,12 @@ body{
   justify-content:center;
   text-align:center;
 
-  /* hidden by default, shown when JS adds .show */
   opacity: 0;
   transform: translateY(6px);
   transition: opacity 160ms ease, transform 160ms ease;
 
   pointer-events: none;
+  z-index: 20;
 }
 
 .speech.show{
@@ -401,7 +398,7 @@ body{
   box-shadow: 0 10px 20px rgba(0,122,255,0.18);
 }
 
-/* iOS polish: tool micro-bounce */
+/* Tool micro-bounce */
 .tool-btn.bounce{
   animation: iosBounce 240ms cubic-bezier(.2,.9,.2,1);
 }
@@ -520,7 +517,232 @@ body{
   100%{ transform: translateY(18px) scale(0.9); opacity: 0; }
 }
 
+/* =========================
+   PURE CSS TABBY CAT
+   - happy when low HP
+   - dances when San dies
+   ========================= */
+
+.css-cat{
+  position: absolute;
+  left: 14px;
+  bottom: 72px; /* above toast */
+
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(circle at 30% 28%, #f6f2ea, #d9d2c6 62%),
+    linear-gradient(140deg, #d7cfbf, #c4b9a6);
+
+  border: 1px solid rgba(0,0,0,0.10);
+
+  box-shadow:
+    0 12px 22px rgba(0,0,0,0.18),
+    inset 0 2px 2px rgba(255,255,255,0.8);
+
+  z-index: 12;
+  pointer-events: none;
+
+  /* Default: calm breathing */
+  animation: catBreathe 3.8s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+
+/* Tabby stripes overlay */
+.css-cat::before{
+  content:"";
+  position:absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(
+      120deg,
+      rgba(70,60,45,0.22) 0px,
+      rgba(70,60,45,0.22) 5px,
+      rgba(0,0,0,0) 5px,
+      rgba(0,0,0,0) 14px
+    );
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  filter: blur(0.2px);
+}
+
+/* Forehead "M" + center stripe */
+.css-cat::after{
+  content:"";
+  position:absolute;
+  left: 50%;
+  top: 12px;
+  width: 26px;
+  height: 18px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 20% 40%, rgba(70,60,45,0.28), transparent 55%),
+    radial-gradient(circle at 50% 20%, rgba(70,60,45,0.30), transparent 58%),
+    radial-gradient(circle at 80% 40%, rgba(70,60,45,0.28), transparent 55%),
+    linear-gradient(180deg, rgba(70,60,45,0.28), transparent 70%);
+  opacity: 0.9;
+  border-radius: 12px;
+  mix-blend-mode: multiply;
+}
+
+/* Ears */
+.css-cat__ear{
+  position:absolute;
+  top: -8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px 5px 12px 12px;
+  background: linear-gradient(180deg, #e1dacd, #c5baa6);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.10);
+}
+.css-cat__ear--left{ left: 6px; transform: rotate(-14deg); }
+.css-cat__ear--right{ right: 6px; transform: rotate(14deg); }
+
+.css-cat__face{ position:absolute; inset:0; }
+
+/* Eyes (tabby green) */
+.css-cat__eye{
+  position:absolute;
+  top: 23px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d8ffd6, #5f9d63 55%, #2e5a38 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.25),
+    0 0 0 1px rgba(0,0,0,0.25);
+}
+.css-cat__eye--left{ left: 16px; }
+.css-cat__eye--right{ right: 16px; }
+
+/* Nose + mouth */
+.css-cat__nose{
+  position:absolute;
+  top: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 5px;
+  background: #c68484;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.10);
+}
+
+.css-cat__mouth{
+  position:absolute;
+  top: 39px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 7px;
+  border-bottom: 2px solid rgba(0,0,0,0.45);
+  border-radius: 0 0 999px 999px;
+}
+
+/* Whiskers */
+.css-cat__whiskers{
+  position:absolute;
+  top: 38px;
+  width: 16px;
+  height: 10px;
+  opacity: 0.45;
+}
+.css-cat__whiskers--left{ left: 6px; }
+.css-cat__whiskers--right{ right: 6px; }
+
+.css-cat__whiskers--left::before,
+.css-cat__whiskers--left::after,
+.css-cat__whiskers--right::before,
+.css-cat__whiskers--right::after{
+  content:"";
+  position:absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(0,0,0,0.55);
+  border-radius: 999px;
+}
+
+.css-cat__whiskers--left::before{ top: 1px; transform: rotate(8deg); }
+.css-cat__whiskers--left::after{ top: 7px; transform: rotate(-8deg); }
+.css-cat__whiskers--right::before{ top: 1px; transform: rotate(-8deg); }
+.css-cat__whiskers--right::after{ top: 7px; transform: rotate(8deg); }
+
+/* Default breathing */
+@keyframes catBreathe{
+  0%{ transform: translateY(0) scale(1); }
+  50%{ transform: translateY(-2px) scale(1.03); }
+  100%{ transform: translateY(0) scale(1); }
+}
+
+/* HAPPY (San <= 30% HP): bigger smile + happy eyes */
+.css-cat.happy .css-cat__mouth{
+  top: 38px;
+  width: 14px;
+  height: 10px;
+  border-bottom: 3px solid rgba(0,0,0,0.45);
+  border-radius: 0 0 999px 999px;
+}
+
+.css-cat.happy .css-cat__eye{
+  height: 6px;
+  width: 10px;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  border-top: 3px solid rgba(0,0,0,0.35);
+}
+
+.css-cat.happy{
+  animation: catHappyBounce 1.6s ease-in-out infinite;
+}
+@keyframes catHappyBounce{
+  0%{ transform: translateY(0) scale(1); }
+  50%{ transform: translateY(-3px) scale(1.06); }
+  100%{ transform: translateY(0) scale(1); }
+}
+
+/* DANCE (San dead): wiggle + ear wobble */
+.css-cat.dance{
+  animation: catDance 0.55s ease-in-out infinite;
+}
+
+@keyframes catDance{
+  0%{ transform: rotate(-6deg) translateY(0) scale(1.02); }
+  50%{ transform: rotate(6deg) translateY(-2px) scale(1.06); }
+  100%{ transform: rotate(-6deg) translateY(0) scale(1.02); }
+}
+
+.css-cat.dance .css-cat__ear--left{
+  animation: earWiggleL 0.35s ease-in-out infinite;
+}
+.css-cat.dance .css-cat__ear--right{
+  animation: earWiggleR 0.35s ease-in-out infinite;
+}
+@keyframes earWiggleL{
+  0%{ transform: rotate(-14deg); }
+  50%{ transform: rotate(-26deg); }
+  100%{ transform: rotate(-14deg); }
+}
+@keyframes earWiggleR{
+  0%{ transform: rotate(14deg); }
+  50%{ transform: rotate(26deg); }
+  100%{ transform: rotate(14deg); }
+}
+
+/* Smaller phones */
 @media (max-width: 360px){
   .app{ padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
   .app-title{ font-size: 1.12rem; }
+
+  .css-cat{
+    width: 50px;
+    height: 50px;
+    left: 12px;
+    bottom: 66px;
+  }
 }
