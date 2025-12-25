@@ -1,7 +1,8 @@
-// Angry At San – iOS UI version (gameplay unchanged)
-// - Audio paths kept as "sounds/..."
-// - Tomato throw anchored to wrapper for correct visuals
-// - Better tab selection ARIA updates
+// Angry At San – iOS UI version + polish touches
+// - Tool selection micro "haptic" bounce
+// - HP bar smooth color shift (green->yellow->red) using CSS variable --hpHue
+// - Message box preserved (speech), and custom messages live in tools[tool].messages
+// - Audio paths remain "sounds/..."
 
 const gameWrapper = document.getElementById("gameWrapper");
 const buddy = document.getElementById("buddy");
@@ -20,7 +21,7 @@ let currentTool = "punch";
 let isMuted = false;
 let hasPlayedDeathSound = false;
 
-/* ---------------- TOOLS ---------------- */
+/* ---------------- TOOLS (YOUR CUSTOM MESSAGES LIVE HERE) ---------------- */
 
 const tools = {
   punch: {
@@ -93,7 +94,6 @@ function createAudioPool(src, poolSize = 4, volume = 0.6) {
   };
 }
 
-// Keep your original structure
 const sfx = {
   punch: createAudioPool("sounds/punch.mp3", 5, 0.55),
   bat: createAudioPool("sounds/bat.mp3", 4, 0.6),
@@ -115,7 +115,15 @@ function setMute(state) {
   if (label) label.textContent = isMuted ? "Sound Off" : "Sound";
 }
 
-/* ---------------- UI helpers ---------------- */
+/* ---------------- iOS POLISH: HP COLOR SHIFT ---------------- */
+
+function setHealthHue(percent) {
+  // 100% -> 120 (green), 50% -> ~60 (yellow), 0% -> 0 (red)
+  const hue = Math.max(0, Math.min(120, Math.round((percent / 100) * 120)));
+  document.documentElement.style.setProperty("--hpHue", String(hue));
+}
+
+/* ---------------- UI HELPERS ---------------- */
 
 function setToolsEnabled(enabled) {
   toolButtons.forEach(btn => (btn.disabled = !enabled));
@@ -218,6 +226,7 @@ function throwTomato() {
 
 function updateHealth() {
   health = Math.max(0, Math.min(100, health));
+  setHealthHue(health); // iOS polish touch
 
   if (healthFill) healthFill.style.width = health + "%";
   if (healthText) healthText.textContent = "HP: " + health + "%";
@@ -291,7 +300,14 @@ buddy.addEventListener("keydown", e => {
 toolButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     currentTool = btn.dataset.tool;
+
     setActiveToolButton(currentTool);
+
+    // iOS polish touch: micro "haptic" bounce
+    btn.classList.remove("bounce");
+    void btn.offsetWidth; // restart animation reliably
+    btn.classList.add("bounce");
+
     if (speech) speech.textContent = "Selected: " + tools[currentTool].name;
   });
 });
