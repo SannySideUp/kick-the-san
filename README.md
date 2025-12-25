@@ -1,89 +1,75 @@
-😡 Angry At San
+# 😡 Angry At San
 
-Angry At San is a playful, iOS-styled web game where you can take out your frustration on a cartoon character named San.
+**Angry At San** is a playful, iOS-styled web game where you can take out your frustration on a cartoon character named San.  
 Tap, punch, throw tomatoes, and watch San react with sounds, animations, tears, and sarcastic messages — all wrapped in a clean, modern mobile UI.
 
-Built as a fun personal project with a polished “iOS app” aesthetic.
+Built as a fun personal project with a polished **iOS app–like experience**.
 
-✨ Features
+---
 
-📱 iOS-style UI
+## ✨ Features
 
-Frosted glass cards
+### 📱 iOS-Style UI
+- Frosted glass cards
+- Pill-shaped buttons
+- Sticky bottom toolbar
+- Safe-area support (iPhone notch & home bar)
 
-Pill buttons and sticky bottom bar
+### 🎮 Interactive Character
+- Tap to attack
+- Smooth hit animations
+- Crying when health is low
+- Full death state with visual changes
 
-Safe-area support for iPhone (notches & home indicator)
+### 🩸 Weapons & Tools
+- 👊 Punch  
+- 🦯 Bat  
+- 🔪 Knife  
+- 🔫 Gun  
+- 🍅 Tomato (with splat + stains)
 
-🎮 Interactive character
+### 💬 Message System
+- Weapon-specific custom messages
+- iOS-style toast notifications
+- Fully customizable text
 
-Tap to attack
+### 🔊 Sound
+- Weapon-specific sound effects
+- Audio pooling (no clipping)
+- Mute toggle
 
-Hit reactions with micro-animations
+### 🎨 UI Polish
+- Tool-selection micro “haptic” bounce
+- Health bar smoothly shifts:
+  - 🟢 Green → 🟡 Yellow → 🔴 Red
+- Optimized for Mobile Safari
 
-Crying when health is low
+---
 
-Death state with visual changes
+## 🧠 Why This Project Exists
 
-🩸 Multiple tools
+This project was built as a **creative frontend experiment** combining:
 
-Punch 👊
+- Modern mobile UI patterns
+- Micro-animations & interaction polish
+- Humor and personality
 
-Bat 🦯
+It’s intentionally lightweight, fast, and focused on **feel over complexity**.
 
-Knife 🔪
+---
 
-Gun 🔫
+## 🛠️ Tech Stack
 
-Tomato 🍅 (with splat animation & stains)
+- **HTML5** — Structure  
+- **CSS3** — iOS-style UI, animations, layout  
+- **Vanilla JavaScript** — Game logic, sound, interaction  
+- **No frameworks** — Simple and fast  
 
-💬 Custom message system
+---
 
-Unique, humorous messages per weapon
+## 📂 Project Structure
 
-Messages appear as iOS-style toast notifications
-
-Easy to customize (just edit the message arrays)
-
-🔊 Sound effects
-
-Weapon-specific sounds
-
-Mute toggle
-
-Audio pooling for smooth playback
-
-🎨 UI polish
-
-Tool selection “haptic-style” bounce
-
-Health bar smoothly shifts from green → yellow → red
-
-Optimized for mobile Safari
-
-🧠 Why this project exists
-
-This project was created as a fun, expressive experiment combining:
-
-Modern frontend UI/UX
-
-Animation and interaction polish
-
-Personal humor and creativity
-
-It’s intentionally simple, fast, and focused on feel, not complexity.
-
-🛠️ Tech Stack
-
-HTML5 – Structure
-
-CSS3 – iOS-inspired styling, animations, layout
-
-Vanilla JavaScript – Game logic, sound, animations
-
-No frameworks – Lightweight and fast
-
-📂 Project Structure
+```text
 /
 ├── index.html
 ├── style.css
@@ -95,26 +81,29 @@ No frameworks – Lightweight and fast
     ├── gun.mp3
     ├── squish.mp3
     └── dead.mp3
+```
 
-▶️ How to Run
-Option 1: Open locally
+---
 
-Download or clone the repo
+## ▶️ How to Run
 
-Open index.html in your browser
+### Option 1: Local
+1. Clone or download the repository
+2. Open `index.html` in your browser
+3. Best viewed in **mobile mode**
 
-For best results, use mobile view or Safari on iPhone
-
-Option 2: GitHub Pages
-
-If hosted on GitHub Pages:
-
+### Option 2: GitHub Pages
+```
 https://<your-username>.github.io/
+```
 
-✏️ Customizing the Messages
+---
 
-All character messages live inside script.js:
+## ✏️ Customizing the Messages
 
+All weapon messages live in `script.js`:
+
+```js
 const tools = {
   punch: {
     messages: [
@@ -122,27 +111,28 @@ const tools = {
       "Yara, your not hitting hard enough!",
       "I can't feel my face"
     ]
-  },
-  ...
+  }
 };
+```
 
+---
 
-Just add, remove, or edit strings — no other code changes needed.
+## 📱 Best Experience
 
-📱 Best Experience
+- iPhone (Safari recommended)
+- Mobile viewport (~375×812)
+- Sound ON 🔊
 
-iPhone (Safari or Chrome)
+---
 
-Mobile viewport (375×812 or similar)
+## ⚠️ Disclaimer
 
-Sound ON for full experience
-
-⚠️ Disclaimer
-
-This project is purely for fun.
+This project is **purely for fun**.  
 No real people were harmed (emotionally or otherwise).
 
-❤️ Credits
+---
 
-Designed & built by San
-With inspiration, motivation, and chaos provided by Yara
+## ❤️ Credits
+
+Designed & built by **San**  
+With inspiration, motivation, and chaos provided by **Yara**
