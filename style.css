@@ -528,6 +528,24 @@ body{
   animation: tearFall 900ms ease-out forwards;
 }
 
+
+/* Tool "haptic" micro-bounce */
+.tool-btn.bounce {
+  animation: iosBounce 240ms cubic-bezier(.2,.9,.2,1);
+}
+@keyframes iosBounce {
+  0%   { transform: translateY(0) scale(1); }
+  45%  { transform: translateY(1px) scale(0.985); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Smooth HP color shift (we will set --hpHue from JS) */
+.hp-fill {
+  background: hsl(var(--hpHue, 120) 85% 48%);
+  transition: width 180ms ease, background 220ms ease;
+}
+
+
 @keyframes tearFall{
   0%{ transform: translateY(0) scale(1); opacity: 0.95; }
   70%{ opacity: 0.80; }
