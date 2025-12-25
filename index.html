@@ -1,60 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Angry At San</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <title>Angry At San</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="game-wrapper">
-        <header class="top-bar">
-            <div class="title">Angry At San</div>
-            <div class="health-bar">
-                <div class="health-fill" id="health-fill"></div>
-            </div>
-            <div class="health-text" id="health-text">HP: 100%</div>
-        </header>
+  <div class="app" id="gameWrapper">
+    <header class="hud">
+      <div class="hud-top">
+        <div class="app-title">Angry At San</div>
+        <button class="icon-btn" id="mute-btn" aria-pressed="false" aria-label="Toggle sound">
+          <span class="icon">🔊</span>
+          <span class="label">Sound</span>
+        </button>
+      </div>
 
-        <main class="play-area">
-            <div class="buddy-container">
-                <div class="buddy" id="buddy">
-                    <div class="face">
-                        <div class="eye left"></div>
-                        <div class="eye right"></div>
-                        <div class="mouth"></div>
-                    </div>
+      <div class="hp">
+        <div class="hp-row">
+          <div class="hp-label">Health</div>
+          <div class="hp-text" id="health-text">HP: 100%</div>
+        </div>
+        <div class="hp-bar" aria-label="Health bar">
+          <div class="hp-fill" id="health-fill"></div>
+        </div>
+      </div>
+    </header>
 
-                    <div class="body">
-                        <div class="arm left"></div>
-                        <div class="arm right"></div>
-                        <div class="leg left"></div>
-                        <div class="leg right"></div>
-                    </div>
-                </div>
-
-                <div class="speech" id="speech">Tap me if you are mad…</div>
-            </div>
-        </main>
-
-        <footer class="controls">
-            <div class="tool-row">
-                <button class="tool-btn active" data-tool="punch">👊 Punch</button>
-                <button class="tool-btn" data-tool="bat">🦯 Bat</button>
-                <button class="tool-btn" data-tool="knife">🔪 Knife</button>
-                <button class="tool-btn" data-tool="gun">🔫 Gun</button>
-                <button class="tool-btn" data-tool="tomato">🍅 Tomato</button>
+    <main class="stage">
+      <section class="card play-card">
+        <div class="buddy-container">
+          <div class="buddy" id="buddy" role="button" tabindex="0" aria-label="Tap to hit San">
+            <div class="face">
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+              <div class="mouth"></div>
             </div>
 
-            <div class="audio-row">
-                <button class="audio-btn" id="mute-btn" aria-pressed="false">🔊 Sound: ON</button>
+            <div class="body">
+              <div class="arm left"></div>
+              <div class="arm right"></div>
+              <div class="leg left"></div>
+              <div class="leg right"></div>
             </div>
+          </div>
 
-            <div class="bottom-row">
-                <button id="reset-btn" class="reset-btn">Reset San</button>
-            </div>
-        </footer>
-    </div>
+          <div class="speech" id="speech">Select a tool and tap on San.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bottom-bar">
+      <div class="tools" role="tablist" aria-label="Tools">
+        <button class="tool-btn active" data-tool="punch" role="tab" aria-selected="true">👊 <span>Punch</span></button>
+        <button class="tool-btn" data-tool="bat" role="tab" aria-selected="false">🦯 <span>Bat</span></button>
+        <button class="tool-btn" data-tool="knife" role="tab" aria-selected="false">🔪 <span>Knife</span></button>
+        <button class="tool-btn" data-tool="gun" role="tab" aria-selected="false">🔫 <span>Gun</span></button>
+        <button class="tool-btn" data-tool="tomato" role="tab" aria-selected="false">🍅 <span>Tomato</span></button>
+      </div>
+
+      <button class="primary-btn" id="reset-btn">Reset San</button>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
 
     <script src="script.js"></script>
 </body>
