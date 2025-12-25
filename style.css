@@ -330,7 +330,7 @@ body{
   transition: opacity 160ms ease, transform 160ms ease;
 
   pointer-events: none;
-  z-index: 20;
+  z-index: 30;
 }
 
 .speech.show{
@@ -452,7 +452,6 @@ body{
   z-index: 50;
   pointer-events:none;
 }
-
 .tomato::before{
   content:"";
   position:absolute;
@@ -465,7 +464,6 @@ body{
   background: linear-gradient(180deg, #34c759, #248a3d);
   box-shadow: 0 6px 10px rgba(0,0,0,0.10);
 }
-
 .tomato.splat{ animation: splat 220ms ease-out forwards; }
 @keyframes splat{
   0%{ transform: scale(1); opacity: 1; }
@@ -485,7 +483,6 @@ body{
   pointer-events:none;
   box-shadow: 0 10px 14px rgba(0,0,0,0.14), inset -3px -3px 0 rgba(0,0,0,0.18);
 }
-
 .tomato-stain::after{
   content:"";
   position:absolute;
@@ -510,17 +507,33 @@ body{
   filter: drop-shadow(0 8px 10px rgba(0,0,0,0.12));
   animation: tearFall 900ms ease-out forwards;
 }
-
 @keyframes tearFall{
   0%{ transform: translateY(0) scale(1); opacity: 0.95; }
   70%{ opacity: 0.80; }
   100%{ transform: translateY(18px) scale(0.9); opacity: 0; }
 }
 
+/* ---------------------------
+   Extra “juice”
+---------------------------- */
+.play-card.shake{ animation: cardShake 300ms ease; }
+@keyframes cardShake{
+  0%{ transform: translateX(0); }
+  20%{ transform: translateX(-4px); }
+  40%{ transform: translateX(4px); }
+  60%{ transform: translateX(-3px); }
+  80%{ transform: translateX(3px); }
+  100%{ transform: translateX(0); }
+}
+.play-card.zoom{ animation: cardZoom 220ms ease; }
+@keyframes cardZoom{
+  0%{ transform: scale(1); }
+  60%{ transform: scale(1.02); }
+  100%{ transform: scale(1); }
+}
+
 /* =========================
-   PURE CSS TABBY CAT
-   - happy when low HP
-   - dances when San dies
+   XRPN: Pure CSS Tabby Cat
    ========================= */
 
 .css-cat{
@@ -528,8 +541,8 @@ body{
   left: 14px;
   bottom: 72px; /* above toast */
 
-  width: 58px;
-  height: 58px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
 
   background:
@@ -542,10 +555,11 @@ body{
     0 12px 22px rgba(0,0,0,0.18),
     inset 0 2px 2px rgba(255,255,255,0.8);
 
-  z-index: 12;
-  pointer-events: none;
+  z-index: 14;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select:none;
 
-  /* Default: calm breathing */
   animation: catBreathe 3.8s ease-in-out infinite;
   transform-origin: 50% 80%;
 }
@@ -559,14 +573,13 @@ body{
   background:
     repeating-linear-gradient(
       120deg,
-      rgba(70,60,45,0.22) 0px,
-      rgba(70,60,45,0.22) 5px,
+      rgba(70,60,45,0.24) 0px,
+      rgba(70,60,45,0.24) 5px,
       rgba(0,0,0,0) 5px,
       rgba(0,0,0,0) 14px
     );
   opacity: 0.85;
   mix-blend-mode: multiply;
-  filter: blur(0.2px);
 }
 
 /* Forehead "M" + center stripe */
@@ -575,17 +588,40 @@ body{
   position:absolute;
   left: 50%;
   top: 12px;
-  width: 26px;
+  width: 28px;
   height: 18px;
   transform: translateX(-50%);
   background:
-    radial-gradient(circle at 20% 40%, rgba(70,60,45,0.28), transparent 55%),
-    radial-gradient(circle at 50% 20%, rgba(70,60,45,0.30), transparent 58%),
-    radial-gradient(circle at 80% 40%, rgba(70,60,45,0.28), transparent 55%),
-    linear-gradient(180deg, rgba(70,60,45,0.28), transparent 70%);
+    radial-gradient(circle at 20% 40%, rgba(70,60,45,0.30), transparent 55%),
+    radial-gradient(circle at 50% 20%, rgba(70,60,45,0.32), transparent 58%),
+    radial-gradient(circle at 80% 40%, rgba(70,60,45,0.30), transparent 55%),
+    linear-gradient(180deg, rgba(70,60,45,0.30), transparent 70%);
   opacity: 0.9;
   border-radius: 12px;
   mix-blend-mode: multiply;
+}
+
+/* Tail (behind cat, wiggles only when happy) */
+.css-cat__tail{
+  position:absolute;
+  left: 52px;
+  bottom: 8px;
+  width: 22px;
+  height: 10px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(70,60,45,0.25) 0px,
+      rgba(70,60,45,0.25) 5px,
+      rgba(0,0,0,0) 5px,
+      rgba(0,0,0,0) 10px
+    ),
+    linear-gradient(180deg, #d7cfbf, #c4b9a6);
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.14));
+  transform-origin: 10% 50%;
+  z-index: -1;
 }
 
 /* Ears */
@@ -604,10 +640,10 @@ body{
 
 .css-cat__face{ position:absolute; inset:0; }
 
-/* Eyes (tabby green) */
+/* Eyes */
 .css-cat__eye{
   position:absolute;
-  top: 23px;
+  top: 24px;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -616,13 +652,13 @@ body{
     inset 0 0 0 2px rgba(255,255,255,0.25),
     0 0 0 1px rgba(0,0,0,0.25);
 }
-.css-cat__eye--left{ left: 16px; }
-.css-cat__eye--right{ right: 16px; }
+.css-cat__eye--left{ left: 17px; }
+.css-cat__eye--right{ right: 17px; }
 
 /* Nose + mouth */
 .css-cat__nose{
   position:absolute;
-  top: 35px;
+  top: 36px;
   left: 50%;
   transform: translateX(-50%);
   width: 7px;
@@ -634,7 +670,7 @@ body{
 
 .css-cat__mouth{
   position:absolute;
-  top: 39px;
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   width: 12px;
@@ -646,7 +682,7 @@ body{
 /* Whiskers */
 .css-cat__whiskers{
   position:absolute;
-  top: 38px;
+  top: 39px;
   width: 16px;
   height: 10px;
   opacity: 0.45;
@@ -666,37 +702,32 @@ body{
   background: rgba(0,0,0,0.55);
   border-radius: 999px;
 }
-
 .css-cat__whiskers--left::before{ top: 1px; transform: rotate(8deg); }
 .css-cat__whiskers--left::after{ top: 7px; transform: rotate(-8deg); }
 .css-cat__whiskers--right::before{ top: 1px; transform: rotate(-8deg); }
 .css-cat__whiskers--right::after{ top: 7px; transform: rotate(8deg); }
 
-/* Default breathing */
+/* Name tag */
+.css-cat__name{
+  position:absolute;
+  left: 50%;
+  bottom: -16px;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(0,0,0,0.55);
+  letter-spacing: 0.2px;
+  user-select:none;
+  pointer-events:none;
+}
+
 @keyframes catBreathe{
   0%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.03); }
   100%{ transform: translateY(0) scale(1); }
 }
 
-/* HAPPY (San <= 30% HP): bigger smile + happy eyes */
-.css-cat.happy .css-cat__mouth{
-  top: 38px;
-  width: 14px;
-  height: 10px;
-  border-bottom: 3px solid rgba(0,0,0,0.45);
-  border-radius: 0 0 999px 999px;
-}
-
-.css-cat.happy .css-cat__eye{
-  height: 6px;
-  width: 10px;
-  border-radius: 999px;
-  background: transparent;
-  box-shadow: none;
-  border-top: 3px solid rgba(0,0,0,0.35);
-}
-
+/* HAPPY (San <= 30% HP): smile + happy eyes + tail wag */
 .css-cat.happy{
   animation: catHappyBounce 1.6s ease-in-out infinite;
 }
@@ -705,18 +736,38 @@ body{
   50%{ transform: translateY(-3px) scale(1.06); }
   100%{ transform: translateY(0) scale(1); }
 }
+.css-cat.happy .css-cat__mouth{
+  top: 39px;
+  width: 14px;
+  height: 10px;
+  border-bottom: 3px solid rgba(0,0,0,0.45);
+}
+.css-cat.happy .css-cat__eye{
+  height: 6px;
+  width: 10px;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  border-top: 3px solid rgba(0,0,0,0.35);
+}
+.css-cat.happy .css-cat__tail{
+  animation: tailWag 0.55s ease-in-out infinite;
+}
+@keyframes tailWag{
+  0%{ transform: rotate(-10deg); }
+  50%{ transform: rotate(22deg); }
+  100%{ transform: rotate(-10deg); }
+}
 
 /* DANCE (San dead): wiggle + ear wobble */
 .css-cat.dance{
   animation: catDance 0.55s ease-in-out infinite;
 }
-
 @keyframes catDance{
   0%{ transform: rotate(-6deg) translateY(0) scale(1.02); }
   50%{ transform: rotate(6deg) translateY(-2px) scale(1.06); }
   100%{ transform: rotate(-6deg) translateY(0) scale(1.02); }
 }
-
 .css-cat.dance .css-cat__ear--left{
   animation: earWiggleL 0.35s ease-in-out infinite;
 }
@@ -734,15 +785,16 @@ body{
   100%{ transform: rotate(14deg); }
 }
 
-/* Smaller phones */
+/* Small phones */
 @media (max-width: 360px){
   .app{ padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
   .app-title{ font-size: 1.12rem; }
 
   .css-cat{
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
     left: 12px;
     bottom: 66px;
   }
+  .css-cat__tail{ left: 46px; }
 }
