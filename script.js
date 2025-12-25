@@ -7,6 +7,7 @@ const toolButtons = document.querySelectorAll(".tool-btn");
 const resetBtn = document.getElementById("reset-btn");
 const mouth = document.querySelector(".mouth");
 const muteBtn = document.getElementById("mute-btn");
+const cssCat = document.getElementById("cssCat");
 
 let cryingInterval = null;
 let speechTimer = null;
@@ -116,7 +117,7 @@ function setHealthHue(percent) {
   document.documentElement.style.setProperty("--hpHue", String(hue));
 }
 
-/* ---------------- SPEECH TOAST (FIX) ---------------- */
+/* ---------------- SPEECH TOAST ---------------- */
 
 function showSpeech(msg, ms = 1400) {
   if (!speech) return;
@@ -128,6 +129,26 @@ function showSpeech(msg, ms = 1400) {
   speechTimer = setTimeout(() => {
     speech.classList.remove("show");
   }, ms);
+}
+
+/* ---------------- CAT STATE ---------------- */
+
+function updateCatState() {
+  if (!cssCat) return;
+
+  // Clear states first
+  cssCat.classList.remove("happy", "dance");
+
+  if (health === 0) {
+    // Dance when San dies
+    cssCat.classList.add("dance");
+    return;
+  }
+
+  // Happy when San is low (<=30%)
+  if (health > 0 && health <= 30) {
+    cssCat.classList.add("happy");
+  }
 }
 
 /* ---------------- UI HELPERS ---------------- */
@@ -234,6 +255,7 @@ function randomMessage(arr) {
 function updateHealth() {
   health = Math.max(0, Math.min(100, health));
   setHealthHue(health);
+  updateCatState();
 
   if (healthFill) healthFill.style.width = health + "%";
   if (healthText) healthText.textContent = "HP: " + health + "%";
