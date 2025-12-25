@@ -1,27 +1,19 @@
-/* =========================
-   iOS-like Modern UI
-   ========================= */
-
 :root{
-  --bg: #f2f2f7;           /* iOS system grouped background */
+  --bg: #f2f2f7;
   --card: rgba(255,255,255,0.72);
   --card-strong: rgba(255,255,255,0.86);
-  --border: rgba(60,60,67,0.16); /* iOS separator-ish */
+  --border: rgba(60,60,67,0.16);
   --text: rgba(0,0,0,0.88);
   --muted: rgba(60,60,67,0.72);
 
-  --accent: #007aff;        /* iOS system blue */
-  --accent-2: #ff2d55;      /* iOS system pink */
-  --ok: #34c759;
-  --warn: #ffcc00;
-  --bad: #ff3b30;
+  --accent: #007aff;
+  --accent-2: #ff2d55;
 
   --shadow: 0 12px 30px rgba(0,0,0,0.10);
   --shadow-soft: 0 8px 18px rgba(0,0,0,0.08);
 
   --r-xl: 26px;
   --r-lg: 20px;
-  --r-md: 16px;
 
   --tap: 44px;
 
@@ -34,13 +26,16 @@ html, body{ height:100%; }
 
 body{
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, "Segoe UI", Roboto, Arial;
-  background: radial-gradient(900px 450px at 15% 10%, rgba(0,122,255,0.12), transparent 60%),
-              radial-gradient(900px 450px at 85% 15%, rgba(255,45,85,0.10), transparent 60%),
-              var(--bg);
+  background:
+    radial-gradient(900px 450px at 15% 10%, rgba(0,122,255,0.12), transparent 60%),
+    radial-gradient(900px 450px at 85% 15%, rgba(255,45,85,0.10), transparent 60%),
+    var(--bg);
   color: var(--text);
+
   display:flex;
   justify-content:center;
   align-items:stretch;
+
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
@@ -50,14 +45,17 @@ body{
 .app{
   width:100%;
   max-width:520px;
+
   min-height:100vh;
   min-height:100dvh;
+
   display:flex;
   flex-direction:column;
   gap:12px;
+
   padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
   position:relative;
-  overflow:hidden; /* keeps tomato animation nicely contained */
+  overflow:hidden;
 }
 
 /* Generic card */
@@ -70,9 +68,7 @@ body{
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* =========================
-   HUD
-   ========================= */
+/* HUD */
 .hud{
   padding: 14px;
   border-radius: var(--r-xl);
@@ -81,6 +77,7 @@ body{
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+
   display:flex;
   flex-direction:column;
   gap: 12px;
@@ -118,30 +115,10 @@ body{
 .icon-btn .icon{ font-size: 1rem; line-height: 1; }
 .icon-btn .label{ font-size: 0.92rem; font-weight: 650; color: var(--muted); }
 
-.hp{
-  display:flex;
-  flex-direction:column;
-  gap: 8px;
-}
-
-.hp-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.hp-label{
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.hp-text{
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--muted);
-}
+/* HP */
+.hp{ display:flex; flex-direction:column; gap: 8px; }
+.hp-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.hp-label, .hp-text{ font-size: 0.9rem; font-weight: 700; color: var(--muted); }
 
 .hp-bar{
   height: 12px;
@@ -150,43 +127,38 @@ body{
   border: 1px solid var(--border);
   background: rgba(0,0,0,0.06);
 }
-
 .hp-fill{
   height:100%;
   width:100%;
   border-radius: 999px;
-
-  /* iOS polish: dynamic color driven by --hpHue */
   background: hsl(var(--hpHue) 85% 48%);
   transition: width 180ms ease, background 220ms ease;
 }
 
-/* =========================
-   Stage / play card
-   ========================= */
+/* Stage */
 .stage{
   flex: 1 1 auto;
   min-height: 0;
   display:flex;
 }
 
+/* Play card: make it a positioning context for the toast */
 .play-card{
   width: 100%;
   padding: 14px;
   display:grid;
   place-items:center;
+  position: relative;            /* needed for absolute speech */
+  padding-bottom: 74px;          /* space reserved for the toast */
 }
 
 .buddy-container{
   width:100%;
   display:grid;
   place-items:center;
-  gap: 14px;
 }
 
-/* =========================
-   Buddy (character)
-   ========================= */
+/* Buddy */
 .buddy{
   width: clamp(150px, 44vw, 235px);
   display:flex;
@@ -198,16 +170,13 @@ body{
   -webkit-tap-highlight-color: transparent;
   outline:none;
 
-  /* reserve space for legs so speech stays clean */
   padding-bottom: 58px;
 }
-
 .buddy:focus-visible{
   box-shadow: 0 0 0 4px rgba(0,122,255,0.22);
   border-radius: var(--r-lg);
 }
 
-/* Face */
 .face{
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -220,7 +189,6 @@ body{
   box-shadow: var(--shadow);
 }
 
-/* Eyes */
 .eye{
   width: 13%;
   height: 13%;
@@ -233,7 +201,6 @@ body{
 .eye.left{ left: 26%; }
 .eye.right{ right: 26%; }
 
-/* Mouth */
 .mouth{
   position:absolute;
   left: 50%;
@@ -251,7 +218,6 @@ body{
   bottom: 26%;
 }
 
-/* Body */
 .body{
   width: 62%;
   aspect-ratio: 1 / 1.38;
@@ -267,7 +233,6 @@ body{
   box-shadow: var(--shadow-soft);
 }
 
-/* Arms */
 .arm{
   position:absolute;
   top: 26%;
@@ -281,7 +246,6 @@ body{
 .arm.left{ left: -22%; }
 .arm.right{ right: -22%; }
 
-/* Legs */
 .leg{
   position:absolute;
   bottom: -26%;
@@ -295,7 +259,6 @@ body{
 .leg.left{ left: 12%; }
 .leg.right{ right: 12%; }
 
-/* Tap feedback (buddy) */
 .buddy.hit{ animation: hitPop 180ms ease; }
 @keyframes hitPop{
   0%{ transform: translateY(0) scale(1); }
@@ -340,17 +303,21 @@ body{
 .buddy.dead .eye::after{ transform: translate(-50%,-50%) rotate(-45deg); }
 
 /* =========================
-   Speech (message box)
+   Speech: iOS toast (FIX)
    ========================= */
 .speech{
-  width: min(94%, 470px);
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+
   min-height: 44px;
   padding: 12px 14px;
   border-radius: 18px;
 
   background: var(--card-strong);
   border: 1px solid var(--border);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.07);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
 
   font-size: 0.98rem;
   line-height: 1.2;
@@ -360,11 +327,21 @@ body{
   align-items:center;
   justify-content:center;
   text-align:center;
+
+  /* hidden by default, shown when JS adds .show */
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 160ms ease, transform 160ms ease;
+
+  pointer-events: none;
 }
 
-/* =========================
-   Bottom bar (iOS toolbar)
-   ========================= */
+.speech.show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bottom bar */
 .bottom-bar{
   position: sticky;
   bottom: 0;
@@ -415,7 +392,6 @@ body{
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, background 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-
 .tool-btn span{ font-weight: 750; color: var(--text); }
 .tool-btn:active{ transform: translateY(1px); }
 
@@ -425,7 +401,7 @@ body{
   box-shadow: 0 10px 20px rgba(0,122,255,0.18);
 }
 
-/* iOS polish: tool "haptic" micro-bounce */
+/* iOS polish: tool micro-bounce */
 .tool-btn.bounce{
   animation: iosBounce 240ms cubic-bezier(.2,.9,.2,1);
 }
@@ -435,7 +411,6 @@ body{
   100% { transform: translateY(0) scale(1); }
 }
 
-/* Primary action */
 .primary-btn{
   min-height: var(--tap);
   width: 100%;
@@ -460,7 +435,6 @@ body{
   filter: brightness(0.98);
 }
 
-/* Disabled states */
 .tool-btn:disabled,
 .primary-btn:disabled{
   opacity: 0.55;
@@ -468,9 +442,7 @@ body{
   box-shadow: none;
 }
 
-/* =========================
-   Tomato / stains / tears
-   ========================= */
+/* Tomato / stains / tears */
 .tomato{
   position:absolute;
   width: 28px;
@@ -551,5 +523,4 @@ body{
 @media (max-width: 360px){
   .app{ padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
   .app-title{ font-size: 1.12rem; }
-  .speech{ font-size: 0.95rem; }
 }
