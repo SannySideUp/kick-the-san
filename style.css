@@ -24,6 +24,9 @@
   --r-md: 16px;
 
   --tap: 44px;
+
+  /* HP hue is driven by JS (0=red -> 120=green) */
+  --hpHue: 120;
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
@@ -152,8 +155,10 @@ body{
   height:100%;
   width:100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--ok), var(--warn), var(--bad));
-  transition: width 180ms ease;
+
+  /* iOS polish: dynamic color driven by --hpHue */
+  background: hsl(var(--hpHue) 85% 48%);
+  transition: width 180ms ease, background 220ms ease;
 }
 
 /* =========================
@@ -290,7 +295,7 @@ body{
 .leg.left{ left: 12%; }
 .leg.right{ right: 12%; }
 
-/* Tap feedback (iOS-ish micro interaction) */
+/* Tap feedback (buddy) */
 .buddy.hit{ animation: hitPop 180ms ease; }
 @keyframes hitPop{
   0%{ transform: translateY(0) scale(1); }
@@ -335,7 +340,7 @@ body{
 .buddy.dead .eye::after{ transform: translate(-50%,-50%) rotate(-45deg); }
 
 /* =========================
-   Speech
+   Speech (message box)
    ========================= */
 .speech{
   width: min(94%, 470px);
@@ -377,7 +382,6 @@ body{
   -webkit-backdrop-filter: blur(18px);
 }
 
-/* iOS-like horizontal tool pills (scroll if needed) */
 .tools{
   display:flex;
   gap: 10px;
@@ -421,6 +425,16 @@ body{
   box-shadow: 0 10px 20px rgba(0,122,255,0.18);
 }
 
+/* iOS polish: tool "haptic" micro-bounce */
+.tool-btn.bounce{
+  animation: iosBounce 240ms cubic-bezier(.2,.9,.2,1);
+}
+@keyframes iosBounce{
+  0%   { transform: translateY(0) scale(1); }
+  45%  { transform: translateY(1px) scale(0.985); }
+  100% { transform: translateY(0) scale(1); }
+}
+
 /* Primary action */
 .primary-btn{
   min-height: var(--tap);
@@ -438,7 +452,7 @@ body{
   box-shadow: 0 12px 20px rgba(0,122,255,0.22);
   cursor:pointer;
 
-  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  transition: transform 120ms ease, filter 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .primary-btn:active{
@@ -528,33 +542,12 @@ body{
   animation: tearFall 900ms ease-out forwards;
 }
 
-
-/* Tool "haptic" micro-bounce */
-.tool-btn.bounce {
-  animation: iosBounce 240ms cubic-bezier(.2,.9,.2,1);
-}
-@keyframes iosBounce {
-  0%   { transform: translateY(0) scale(1); }
-  45%  { transform: translateY(1px) scale(0.985); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-/* Smooth HP color shift (we will set --hpHue from JS) */
-.hp-fill {
-  background: hsl(var(--hpHue, 120) 85% 48%);
-  transition: width 180ms ease, background 220ms ease;
-}
-
-
 @keyframes tearFall{
   0%{ transform: translateY(0) scale(1); opacity: 0.95; }
   70%{ opacity: 0.80; }
   100%{ transform: translateY(18px) scale(0.9); opacity: 0; }
 }
 
-/* =========================
-   Small screens
-   ========================= */
 @media (max-width: 360px){
   .app{ padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
   .app-title{ font-size: 1.12rem; }
