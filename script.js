@@ -1,9 +1,3 @@
-// Angry At San – iOS UI version + polish touches
-// - Tool selection micro "haptic" bounce
-// - HP bar smooth color shift (green->yellow->red) using CSS variable --hpHue
-// - Message box preserved (speech), and custom messages live in tools[tool].messages
-// - Audio paths remain "sounds/..."
-
 const gameWrapper = document.getElementById("gameWrapper");
 const buddy = document.getElementById("buddy");
 const healthFill = document.getElementById("health-fill");
@@ -15,14 +9,14 @@ const mouth = document.querySelector(".mouth");
 const muteBtn = document.getElementById("mute-btn");
 
 let cryingInterval = null;
+let speechTimer = null;
 
 let health = 100;
 let currentTool = "punch";
 let isMuted = false;
 let hasPlayedDeathSound = false;
 
-/* ---------------- TOOLS (YOUR CUSTOM MESSAGES LIVE HERE) ---------------- */
-
+/* ---------------- YOUR CUSTOM MESSAGES ---------------- */
 const tools = {
   punch: {
     name: "Punch",
@@ -118,9 +112,22 @@ function setMute(state) {
 /* ---------------- iOS POLISH: HP COLOR SHIFT ---------------- */
 
 function setHealthHue(percent) {
-  // 100% -> 120 (green), 50% -> ~60 (yellow), 0% -> 0 (red)
   const hue = Math.max(0, Math.min(120, Math.round((percent / 100) * 120)));
   document.documentElement.style.setProperty("--hpHue", String(hue));
+}
+
+/* ---------------- SPEECH TOAST (FIX) ---------------- */
+
+function showSpeech(msg, ms = 1400) {
+  if (!speech) return;
+
+  speech.textContent = msg;
+  speech.classList.add("show");
+
+  if (speechTimer) clearTimeout(speechTimer);
+  speechTimer = setTimeout(() => {
+    speech.classList.remove("show");
+  }, ms);
 }
 
 /* ---------------- UI HELPERS ---------------- */
@@ -186,15 +193,12 @@ function throwTomato() {
   const wrapperRect = gameWrapper.getBoundingClientRect();
   const faceRect = face.getBoundingClientRect();
 
-  // Start from bottom-center of wrapper
   const startX = wrapperRect.width / 2;
   const startY = wrapperRect.height - 95;
 
-  // Random impact point on face
   const offsetX = Math.random() * faceRect.width * 0.6 + faceRect.width * 0.2;
   const offsetY = Math.random() * faceRect.height * 0.6 + faceRect.height * 0.2;
 
-  // Convert viewport coords to wrapper-local
   const targetX = (faceRect.left - wrapperRect.left) + offsetX;
   const targetY = (faceRect.top - wrapperRect.top) + offsetY;
 
@@ -211,7 +215,6 @@ function throwTomato() {
     tomato.classList.add("splat");
     sfx.squish.play();
 
-    // Stain inside face
     const stain = document.createElement("div");
     stain.className = "tomato-stain";
     stain.style.left = offsetX + "px";
@@ -224,21 +227,26 @@ function throwTomato() {
 
 /* ---------------- GAME LOGIC ---------------- */
 
+function randomMessage(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function updateHealth() {
   health = Math.max(0, Math.min(100, health));
-  setHealthHue(health); // iOS polish touch
+  setHealthHue(health);
 
   if (healthFill) healthFill.style.width = health + "%";
   if (healthText) healthText.textContent = "HP: " + health + "%";
 
   if (health === 0) {
-    if (speech) speech.textContent = "You win. Yara is now calm… right?";
     buddy.classList.add("dead");
     mouth.classList.add("sad");
     setToolsEnabled(false);
 
     stopCrying();
     document.querySelectorAll(".tear").forEach(t => t.remove());
+
+    showSpeech("You win. Yara is now calm… right?", 2000);
 
     if (!hasPlayedDeathSound) {
       sfx.dead.play();
@@ -252,10 +260,6 @@ function updateHealth() {
     if (health <= 30) startCrying();
     else stopCrying();
   }
-}
-
-function randomMessage(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function triggerHit() {
@@ -277,8 +281,8 @@ function triggerHit() {
   health -= tool.damage;
   updateHealth();
 
-  if (health > 0 && speech) {
-    speech.textContent = randomMessage(tool.messages);
+  if (health > 0) {
+    showSpeech(randomMessage(tool.messages), 1400);
   }
 }
 
@@ -289,7 +293,6 @@ buddy.addEventListener("pointerdown", e => {
   triggerHit();
 });
 
-// Keyboard (Enter / Space) for accessibility
 buddy.addEventListener("keydown", e => {
   if (e.key === "Enter" || e.key === " ") {
     e.preventDefault();
@@ -303,24 +306,26 @@ toolButtons.forEach(btn => {
 
     setActiveToolButton(currentTool);
 
-    // iOS polish touch: micro "haptic" bounce
+    // iOS micro-bounce
     btn.classList.remove("bounce");
-    void btn.offsetWidth; // restart animation reliably
+    void btn.offsetWidth;
     btn.classList.add("bounce");
 
-    if (speech) speech.textContent = "Selected: " + tools[currentTool].name;
+    showSpeech("Selected: " + tools[currentTool].name, 1000);
   });
 });
 
 resetBtn.addEventListener("click", () => {
   health = 100;
   hasPlayedDeathSound = false;
-  updateHealth();
-  setToolsEnabled(true);
-  stopCrying();
 
   document.querySelectorAll(".tomato-stain").forEach(s => s.remove());
-  if (speech) speech.textContent = "Select a tool and tap on San.";
+  stopCrying();
+
+  updateHealth();
+  setToolsEnabled(true);
+
+  showSpeech("Reset done. Select a tool and tap on San.", 1400);
 });
 
 if (muteBtn) {
@@ -332,4 +337,4 @@ if (muteBtn) {
 setMute(false);
 setActiveToolButton(currentTool);
 updateHealth();
-if (speech) speech.textContent = "Select a tool and tap on San.";
+showSpeech("Select a tool and tap on San.", 1200);
