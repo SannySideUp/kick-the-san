@@ -30,7 +30,7 @@
     </header>
 
     <main class="stage">
-      <section class="card play-card">
+      <section class="card play-card" id="playCard">
         <div class="buddy-container">
           <div class="buddy" id="buddy" role="button" tabindex="0" aria-label="Tap to hit San">
             <div class="face">
@@ -48,8 +48,8 @@
           </div>
         </div>
 
-        <!-- PURE CSS TABBY CAT (bottom-left) -->
-        <div class="css-cat" id="cssCat" aria-hidden="true">
+        <!-- PURE CSS TABBY CAT: XRPN -->
+        <div class="css-cat" id="cssCat" role="button" tabindex="0" aria-label="Xrpn (tap me)">
           <div class="css-cat__ear css-cat__ear--left"></div>
           <div class="css-cat__ear css-cat__ear--right"></div>
 
@@ -62,7 +62,11 @@
 
             <div class="css-cat__whiskers css-cat__whiskers--left"></div>
             <div class="css-cat__whiskers css-cat__whiskers--right"></div>
+
+            <div class="css-cat__name">Xrpn</div>
           </div>
+
+          <div class="css-cat__tail" aria-hidden="true"></div>
         </div>
 
         <!-- iOS toast message -->
