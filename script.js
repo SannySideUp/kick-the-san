@@ -1,4 +1,5 @@
 const gameWrapper = document.getElementById("gameWrapper");
+const playCard = document.getElementById("playCard");
 const buddy = document.getElementById("buddy");
 const healthFill = document.getElementById("health-fill");
 const healthText = document.getElementById("health-text");
@@ -17,7 +18,26 @@ let currentTool = "punch";
 let isMuted = false;
 let hasPlayedDeathSound = false;
 
-/* ---------------- YOUR CUSTOM MESSAGES ---------------- */
+/* ---------------- FUN STATS / BEHAVIOR TRACKING ---------------- */
+const stats = {
+  hitsTotal: 0,
+  toolHits: { punch: 0, bat: 0, knife: 0, gun: 0, tomato: 0 },
+  firstToolUsed: null,
+  usedGun: false,
+  usedOnlyTomatoes: true,
+  usedNoGun: true,
+  resets: 0,
+
+  // combo
+  combo: 0,
+  lastHitAt: 0
+};
+
+let xrpnTapCount = 0;
+let xrpnTapTimer = null;
+let xrpnShieldNextHit = false;
+
+/* ---------------- TOOLS (YOUR CUSTOM MESSAGES LIVE HERE) ---------------- */
 const tools = {
   punch: {
     name: "Punch",
@@ -66,8 +86,64 @@ const tools = {
   }
 };
 
-/* ---------------- AUDIO ---------------- */
+/* ---------------- XRPN: RARE COMMENTARY ---------------- */
+const xrpnComments = [
+  "Xrpn is taking notes.",
+  "Xrpn approves this choice.",
+  "This is why Xrpn doesn’t trust humans.",
+  "Xrpn saw that coming.",
+  "Xrpn will remember this.",
+  "Xrpn: emotionally, I’m thriving.",
+  "Xrpn: that was personal.",
+  "Xrpn: I’m judging both of you."
+];
 
+/* Weapon-judgment style lines (triggered occasionally) */
+const xrpnJudgements = {
+  gun: [
+    "Xrpn: straight to violence, huh.",
+    "Xrpn: that escalated immediately.",
+    "Xrpn: I’m concerned. Slightly impressed."
+  ],
+  tomato: [
+    "Xrpn calls this: humiliation.",
+    "Xrpn: you’re enjoying this too much.",
+    "Xrpn: tomatoes are a personality trait now."
+  ],
+  knife: [
+    "Xrpn respects the commitment.",
+    "Xrpn: that’s… dramatic.",
+    "Xrpn: okay, scary."
+  ],
+  bat: [
+    "Xrpn: that came from the soul.",
+    "Xrpn: wow. okay.",
+    "Xrpn: bonk energy."
+  ],
+  punch: [
+    "Xrpn: classic.",
+    "Xrpn: consistent effort. I respect it.",
+    "Xrpn: simple. effective. cruel."
+  ]
+};
+
+/* Combo phrases (no numbers) */
+const comboPhrases = [
+  { at: 3, text: "Okay okay chill." },
+  { at: 5, text: "This feels personal." },
+  { at: 8, text: "She woke up and chose violence." },
+  { at: 12, text: "Someone stop her." }
+];
+
+/* Overreaction moments (rare) */
+const overreactionLines = [
+  "EMOTIONAL DAMAGE.",
+  "That one came with intentions.",
+  "Okay. That was cinematic.",
+  "He felt that in 4K."
+];
+
+/* ---------------- AUDIO ---------------- */
 function createAudioPool(src, poolSize = 4, volume = 0.6) {
   const pool = [];
   for (let i = 0; i < poolSize; i++) {
@@ -111,14 +187,12 @@ function setMute(state) {
 }
 
 /* ---------------- iOS POLISH: HP COLOR SHIFT ---------------- */
-
 function setHealthHue(percent) {
   const hue = Math.max(0, Math.min(120, Math.round((percent / 100) * 120)));
   document.documentElement.style.setProperty("--hpHue", String(hue));
 }
 
 /* ---------------- SPEECH TOAST ---------------- */
-
 function showSpeech(msg, ms = 1400) {
   if (!speech) return;
 
@@ -131,28 +205,7 @@ function showSpeech(msg, ms = 1400) {
   }, ms);
 }
 
-/* ---------------- CAT STATE ---------------- */
-
-function updateCatState() {
-  if (!cssCat) return;
-
-  // Clear states first
-  cssCat.classList.remove("happy", "dance");
-
-  if (health === 0) {
-    // Dance when San dies
-    cssCat.classList.add("dance");
-    return;
-  }
-
-  // Happy when San is low (<=30%)
-  if (health > 0 && health <= 30) {
-    cssCat.classList.add("happy");
-  }
-}
-
-/* ---------------- UI HELPERS ---------------- */
-
+/* ---------------- HELPERS ---------------- */
 function setToolsEnabled(enabled) {
   toolButtons.forEach(btn => (btn.disabled = !enabled));
 }
@@ -165,22 +218,65 @@ function setActiveToolButton(toolName) {
   });
 }
 
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* ---------------- XRPN STATE ---------------- */
+function updateCatState() {
+  if (!cssCat) return;
+
+  cssCat.classList.remove("happy", "dance");
+
+  if (health === 0) {
+    cssCat.classList.add("dance");
+    return;
+  }
+
+  if (health > 0 && health <= 30) {
+    cssCat.classList.add("happy");
+  }
+}
+
+/* XRPN: tapping consequences */
+function xrpnTap() {
+  xrpnTapCount++;
+
+  // reset tap counter if user pauses
+  if (xrpnTapTimer) clearTimeout(xrpnTapTimer);
+  xrpnTapTimer = setTimeout(() => {
+    xrpnTapCount = 0;
+  }, 1200);
+
+  if (xrpnTapCount === 1) {
+    showSpeech("Xrpn: …", 700);
+    return;
+  }
+  if (xrpnTapCount === 2) {
+    showSpeech("Xrpn: Don’t touch Xrpn.", 1000);
+    return;
+  }
+  if (xrpnTapCount >= 3) {
+    xrpnTapCount = 0;
+    xrpnShieldNextHit = true;
+    showSpeech("Xrpn intervened. Next hit is blocked.", 1400);
+  }
+}
+
 /* ---------------- TEARS ---------------- */
+let cryingInterval = null;
 
 function spawnTears() {
   const face = document.querySelector(".face");
   if (!face) return;
 
   const count = Math.floor(Math.random() * 3) + 2;
-
   for (let i = 0; i < count; i++) {
     const tear = document.createElement("div");
     tear.className = "tear";
-
     const xBase = Math.random() < 0.5 ? 28 : 72;
     tear.style.left = xBase + (Math.random() * 6 - 3) + "%";
     tear.style.top = "46%";
-
     face.appendChild(tear);
     setTimeout(() => tear.remove(), 1000);
   }
@@ -188,7 +284,6 @@ function spawnTears() {
 
 function startCrying() {
   if (cryingInterval) return;
-
   cryingInterval = setInterval(() => {
     if (health > 0 && health <= 30) spawnTears();
   }, 700);
@@ -202,6 +297,12 @@ function stopCrying() {
 }
 
 /* ---------------- TOMATO ---------------- */
+function capStains(max = 20) {
+  const stains = document.querySelectorAll(".tomato-stain");
+  if (stains.length <= max) return;
+  const extra = stains.length - max;
+  for (let i = 0; i < extra; i++) stains[i].remove();
+}
 
 function throwTomato() {
   const face = document.querySelector(".face");
@@ -241,17 +342,85 @@ function throwTomato() {
     stain.style.left = offsetX + "px";
     stain.style.top = offsetY + "px";
     face.appendChild(stain);
+    capStains(20);
 
     setTimeout(() => tomato.remove(), 220);
   };
 }
 
-/* ---------------- GAME LOGIC ---------------- */
+/* ---------------- COMBO + JUICE ---------------- */
+function updateCombo() {
+  const now = Date.now();
+  const windowMs = 1200;
 
-function randomMessage(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+  if (now - stats.lastHitAt <= windowMs) stats.combo++;
+  else stats.combo = 1;
+
+  stats.lastHitAt = now;
 }
 
+function maybeComboPhrase() {
+  const entry = comboPhrases.slice().reverse().find(x => stats.combo >= x.at);
+  if (!entry) return null;
+
+  // Don’t spam — only show sometimes
+  if (Math.random() < 0.55) return entry.text;
+  return null;
+}
+
+function triggerOverreaction() {
+  // 1 in 20-ish
+  if (Math.random() > 0.05) return false;
+
+  playCard.classList.remove("shake", "zoom");
+  void playCard.offsetWidth;
+  playCard.classList.add("shake", "zoom");
+  setTimeout(() => playCard.classList.remove("shake", "zoom"), 320);
+
+  showSpeech(randomPick(overreactionLines), 1200);
+  return true;
+}
+
+/* ---------------- XRPN: RARE OVERRIDE + JUDGEMENT ---------------- */
+function maybeXrpnOverride() {
+  // rare: ~8%
+  return Math.random() < 0.08;
+}
+
+function maybeXrpnJudgement(toolName) {
+  // occasional: ~12%
+  if (Math.random() >= 0.12) return null;
+
+  // Escalate if gun used a lot
+  if (toolName === "gun" && stats.toolHits.gun >= 2) {
+    return "Xrpn: okay… that’s concerning.";
+  }
+
+  return randomPick(xrpnJudgements[toolName] || xrpnComments);
+}
+
+/* ---------------- ENDING NARRATIONS ---------------- */
+function endingNarration() {
+  // behavior-based endings
+  if (stats.toolHits.tomato >= 12 && stats.toolHits.gun === 0) {
+    return "Xrpn: You chose humiliation. Respect.";
+  }
+  if (stats.toolHits.gun > 0 && stats.firstToolUsed === "gun") {
+    return "Xrpn: That escalated fast. Like… immediately.";
+  }
+  if (stats.toolHits.gun === 0) {
+    return "Xrpn acknowledges restraint. Barely.";
+  }
+  if (stats.toolHits.tomato > stats.hitsTotal * 0.6) {
+    return "Xrpn calls this: emotional damage.";
+  }
+  if (stats.combo >= 10) {
+    return "Xrpn: I witnessed a crime.";
+  }
+  return "Xrpn wins. San loses.";
+}
+
+/* ---------------- GAME LOGIC ---------------- */
 function updateHealth() {
   health = Math.max(0, Math.min(100, health));
   setHealthHue(health);
@@ -268,7 +437,7 @@ function updateHealth() {
     stopCrying();
     document.querySelectorAll(".tear").forEach(t => t.remove());
 
-    showSpeech("You win. Yara is now calm… right?", 2000);
+    showSpeech(endingNarration(), 2200);
 
     if (!hasPlayedDeathSound) {
       sfx.dead.play();
@@ -287,29 +456,106 @@ function updateHealth() {
 function triggerHit() {
   if (health <= 0) return;
 
+  // XRPN shield blocks the next hit fully (no damage)
+  if (xrpnShieldNextHit) {
+    xrpnShieldNextHit = false;
+
+    buddy.classList.remove("hit");
+    void buddy.offsetWidth;
+    buddy.classList.add("hit");
+
+    // small juice
+    playCard.classList.remove("shake");
+    void playCard.offsetWidth;
+    playCard.classList.add("shake");
+    setTimeout(() => playCard.classList.remove("shake"), 320);
+
+    showSpeech("Xrpn blocked that. San lives… for now.", 1400);
+    return;
+  }
+
+  stats.hitsTotal++;
+  stats.toolHits[currentTool]++;
+
+  if (!stats.firstToolUsed) stats.firstToolUsed = currentTool;
+
+  // track special behavior
+  if (currentTool === "gun") {
+    stats.usedGun = true;
+    stats.usedNoGun = false;
+  }
+  if (currentTool !== "tomato") stats.usedOnlyTomatoes = false;
+
+  // combo update
+  updateCombo();
+
+  // buddy hit anim
   buddy.classList.remove("hit");
   void buddy.offsetWidth;
   buddy.classList.add("hit");
 
   spawnTears();
 
+  // tool audio + tomato anim
   if (currentTool === "tomato") {
     throwTomato();
   } else if (sfx[currentTool]) {
     sfx[currentTool].play();
   }
 
+  // rare overreaction moment
+  const didOverreact = triggerOverreaction();
+
+  // apply damage
   const tool = tools[currentTool];
   health -= tool.damage;
   updateHealth();
 
-  if (health > 0) {
-    showSpeech(randomMessage(tool.messages), 1400);
+  if (health <= 0) return;
+
+  // Build message pipeline:
+  // 1) Sometimes Xrpn overrides
+  // 2) Else normal tool message
+  // 3) Sometimes add judgement or combo phrase
+  let msg;
+
+  if (maybeXrpnOverride()) {
+    msg = randomPick(xrpnComments);
+  } else {
+    msg = randomPick(tool.messages);
   }
+
+  // occasional judgement line (replace or append)
+  const judgement = maybeXrpnJudgement(currentTool);
+  if (judgement && Math.random() < 0.55) {
+    msg = judgement;
+  } else if (judgement && Math.random() < 0.35) {
+    msg = `${msg} • ${judgement}`;
+  }
+
+  // combo phrase (append sometimes)
+  const comboLine = maybeComboPhrase();
+  if (comboLine) msg = `${msg} • ${comboLine}`;
+
+  // extra special case: gun early = judge harder
+  if (currentTool === "gun" && stats.toolHits.gun === 1 && stats.hitsTotal <= 2) {
+    msg = "Xrpn: straight to the gun? wow.";
+  }
+
+  // special tomato spam comment sometimes
+  if (currentTool === "tomato" && stats.toolHits.tomato >= 6 && Math.random() < 0.25) {
+    msg = "Xrpn: tomatoes are a personality now.";
+  }
+
+  // if overreaction just happened, keep that line dominant sometimes
+  if (didOverreact && Math.random() < 0.55) {
+    msg = randomPick(overreactionLines);
+  }
+
+  showSpeech(msg, 1400);
 }
 
 /* ---------------- EVENTS ---------------- */
-
 buddy.addEventListener("pointerdown", e => {
   e.preventDefault();
   triggerHit();
@@ -325,7 +571,6 @@ buddy.addEventListener("keydown", e => {
 toolButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     currentTool = btn.dataset.tool;
-
     setActiveToolButton(currentTool);
 
     // iOS micro-bounce
@@ -333,7 +578,10 @@ toolButtons.forEach(btn => {
     void btn.offsetWidth;
     btn.classList.add("bounce");
 
-    showSpeech("Selected: " + tools[currentTool].name, 1000);
+    // sometimes Xrpn judges your selection
+    const judge = maybeXrpnJudgement(currentTool);
+    const msg = judge ? judge : `Selected: ${tools[currentTool].name}`;
+    showSpeech(msg, 1000);
   });
 });
 
@@ -341,21 +589,51 @@ resetBtn.addEventListener("click", () => {
   health = 100;
   hasPlayedDeathSound = false;
 
+  stats.hitsTotal = 0;
+  stats.toolHits = { punch: 0, bat: 0, knife: 0, gun: 0, tomato: 0 };
+  stats.firstToolUsed = null;
+  stats.usedGun = false;
+  stats.usedOnlyTomatoes = true;
+  stats.usedNoGun = true;
+  stats.combo = 0;
+  stats.lastHitAt = 0;
+
+  xrpnShieldNextHit = false;
+
   document.querySelectorAll(".tomato-stain").forEach(s => s.remove());
   stopCrying();
 
   updateHealth();
   setToolsEnabled(true);
 
-  showSpeech("Reset done. Select a tool and tap on San.", 1400);
+  stats.resets++;
+  if (stats.resets >= 3) {
+    showSpeech("Xrpn: running from your actions again?", 1400);
+  } else {
+    showSpeech("Reset done. Select a tool and tap on San.", 1400);
+  }
 });
 
 if (muteBtn) {
   muteBtn.addEventListener("click", () => setMute(!isMuted));
 }
 
-/* ---------------- INIT ---------------- */
+/* XRPN taps */
+if (cssCat) {
+  cssCat.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    xrpnTap();
+  });
 
+  cssCat.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      xrpnTap();
+    }
+  });
+}
+
+/* ---------------- INIT ---------------- */
 setMute(false);
 setActiveToolButton(currentTool);
 updateHealth();
