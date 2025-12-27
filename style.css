@@ -455,6 +455,87 @@ body{
   color: rgba(0,0,0,0.55);
 }
 
+/* =========================
+   Tomato splat / stains
+   ========================= */
+
+.splat {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.0;
+  transform: translate(-50%, -50%) scale(0.3);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 55%),
+    radial-gradient(circle at 50% 55%, rgba(255, 0, 60, 0.95), rgba(180, 0, 35, 0.92) 70%, rgba(120, 0, 20, 0.9) 100%);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.16);
+  animation: splatPop 420ms ease forwards;
+}
+
+.splat::before,
+.splat::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255, 0, 60, 0.75), transparent 62%),
+    radial-gradient(circle at 70% 35%, rgba(255, 0, 60, 0.7), transparent 60%),
+    radial-gradient(circle at 55% 80%, rgba(255, 0, 60, 0.68), transparent 60%);
+  opacity: 0.85;
+}
+
+@keyframes splatPop {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.25); }
+  20% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); }
+  100% { opacity: 0.95; transform: translate(-50%,-50%) scale(1.0); }
+}
+
+/* stain stays on face */
+.stain {
+  position: absolute;
+  width: 22px;
+  height: 18px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.85;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.22), transparent 55%),
+    radial-gradient(circle at 50% 60%, rgba(190, 0, 35, 0.85), rgba(120, 0, 20, 0.82) 75%, rgba(80, 0, 15, 0.8) 100%);
+  filter: saturate(1.05);
+}
+
+.stain::after {
+  content: "";
+  position: absolute;
+  left: 60%;
+  top: 55%;
+  width: 10px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(140, 0, 25, 0.55);
+  transform: translate(-50%, -50%) rotate(18deg);
+  opacity: 0.7;
+}
+
+/* projectile tomato */
+.tomatoProjectile {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 55%),
+    radial-gradient(circle at 50% 55%, rgba(255, 0, 60, 0.95), rgba(170, 0, 35, 0.92) 70%, rgba(120, 0, 20, 0.9) 100%);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+  transform: translate(-50%, -50%);
+  opacity: 0.95;
+}
+
 @keyframes catBreathe{
   0%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.03); }
