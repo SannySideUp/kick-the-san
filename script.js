@@ -54,13 +54,18 @@ async function postEvent(event_type, payload) {
     if (res.status === 403) return { ok: false, blocked: true };
     return { ok: res.ok, blocked: false };
   } catch {
+    // Network fail should NOT freeze gameplay.
     return { ok: false, blocked: false };
   }
 }
 
 function markBlocked() {
   ANALYTICS.blocked = true;
-  setToolsEnabled(false);
+
+  // Block means no interaction at all.
+  setToolButtonsEnabled(false);
+  if (resetBtn) resetBtn.disabled = true;
+
   showSpeech("Access blocked.", 3000);
 }
 
@@ -245,7 +250,7 @@ function createAudioPool(src, poolSize = 4, volume = 0.6) {
   };
 }
 
-/* Keep your audio paths as you have them */
+// Keep your audio paths as-is
 const sfx = {
   punch: createAudioPool("sounds/punch.mp3", 5, 0.55),
   bat: createAudioPool("sounds/bat.mp3", 4, 0.6),
@@ -373,8 +378,17 @@ function endingNarration() {
   return "Xrpn wins. San loses.";
 }
 
-function setToolsEnabled(enabled) {
+/* --------- FIXED ENABLE/DISABLE LOGIC ---------- */
+function setToolButtonsEnabled(enabled) {
   toolButtons.forEach(btn => (btn.disabled = !enabled));
+}
+
+/* IMPORTANT:
+   - Reset should remain enabled even when San dies.
+   - Reset should be disabled ONLY when blocked.
+*/
+function setResetEnabled(enabled) {
+  if (!resetBtn) return;
   resetBtn.disabled = !enabled;
 }
 
@@ -394,10 +408,21 @@ function updateHealth() {
   if (healthFill) healthFill.style.width = health + "%";
   if (healthText) healthText.textContent = "HP: " + health + "%";
 
+  if (ANALYTICS.blocked) {
+    // If blocked, everything stays disabled.
+    setToolButtonsEnabled(false);
+    setResetEnabled(false);
+    return;
+  }
+
   if (health === 0) {
     buddy.classList.add("dead");
     mouth.classList.add("sad");
-    setToolsEnabled(false);
+
+    // Disable only tools, keep reset enabled (FIX)
+    setToolButtonsEnabled(false);
+    setResetEnabled(true);
+
     stopCrying();
     showSpeech(endingNarration(), 2200);
 
@@ -408,7 +433,9 @@ function updateHealth() {
   } else {
     buddy.classList.remove("dead");
     mouth.classList.remove("sad");
-    if (!ANALYTICS.blocked) setToolsEnabled(true);
+
+    setToolButtonsEnabled(true);
+    setResetEnabled(true);
 
     if (health <= 30) startCrying();
     else stopCrying();
@@ -419,7 +446,6 @@ function triggerHit() {
   if (ANALYTICS.blocked) return;
   if (health <= 0) return;
 
-  // tracking
   analyticsHit(currentTool);
 
   if (xrpnShieldNextHit) {
@@ -475,8 +501,11 @@ buddy.addEventListener("keydown", (e) => {
 toolButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     if (ANALYTICS.blocked) return;
+    if (health <= 0) return; // prevent selecting tools when dead (tools should be disabled anyway)
+
     currentTool = btn.dataset.tool;
     setActiveToolButton(currentTool);
+
     const judge = maybeXrpnJudgement(currentTool);
     showSpeech(judge ? judge : `Selected: ${tools[currentTool].name}`, 1000);
   });
