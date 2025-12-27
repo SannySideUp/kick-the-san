@@ -54,18 +54,14 @@ async function postEvent(event_type, payload) {
     if (res.status === 403) return { ok: false, blocked: true };
     return { ok: res.ok, blocked: false };
   } catch {
-    // Network fail should NOT freeze gameplay.
     return { ok: false, blocked: false };
   }
 }
 
 function markBlocked() {
   ANALYTICS.blocked = true;
-
-  // Block means no interaction at all.
   setToolButtonsEnabled(false);
-  if (resetBtn) resetBtn.disabled = true;
-
+  setResetEnabled(false);
   showSpeech("Access blocked.", 3000);
 }
 
@@ -158,6 +154,7 @@ window.addEventListener("beforeunload", analyticsEndOnce);
 
 const playCard = document.getElementById("playCard");
 const buddy = document.getElementById("buddy");
+const faceEl = document.querySelector(".face");
 const healthFill = document.getElementById("health-fill");
 const healthText = document.getElementById("health-text");
 const speech = document.getElementById("speech");
@@ -250,15 +247,22 @@ function createAudioPool(src, poolSize = 4, volume = 0.6) {
   };
 }
 
-// Keep your audio paths as-is
+// Keep your audio paths as-is.
+// FIX: add tomato mapping to squish
 const sfx = {
   punch: createAudioPool("sounds/punch.mp3", 5, 0.55),
   bat: createAudioPool("sounds/bat.mp3", 4, 0.6),
   knife: createAudioPool("sounds/knife.mp3", 4, 0.6),
   gun: createAudioPool("sounds/gun.mp3", 4, 0.65),
   squish: createAudioPool("sounds/squish.mp3", 4, 0.6),
-  dead: createAudioPool("sounds/dead.mp3", 2, 0.6)
+  dead: createAudioPool("sounds/dead.mp3", 2, 0.6),
+
+  // tomato uses squish sound
+  tomato: null
 };
+sfx.tomato = sfx.squish;
+
+/* -------- UI helpers -------- */
 
 function setMute(state) {
   isMuted = state;
@@ -294,34 +298,127 @@ function updateCatState() {
   else if (health <= 30) cssCat.classList.add("happy");
 }
 
-function xrpnTap() {
-  xrpnTapCount++;
-  if (xrpnTapTimer) clearTimeout(xrpnTapTimer);
-  xrpnTapTimer = setTimeout(() => { xrpnTapCount = 0; }, 1200);
-
-  if (xrpnTapCount === 1) return showSpeech("Xrpn: …", 700);
-  if (xrpnTapCount === 2) return showSpeech("Xrpn: Don’t touch Xrpn.", 1000);
-  if (xrpnTapCount >= 3) {
-    xrpnTapCount = 0;
-    xrpnShieldNextHit = true;
-    return showSpeech("Xrpn intervened. Next hit is blocked.", 1400);
-  }
+function setToolButtonsEnabled(enabled) {
+  toolButtons.forEach(btn => (btn.disabled = !enabled));
+}
+function setResetEnabled(enabled) {
+  if (!resetBtn) return;
+  resetBtn.disabled = !enabled;
 }
 
-function spawnTears() {
-  const face = document.querySelector(".face");
-  if (!face) return;
+/* =========================
+   Tomato visuals
+   ========================= */
 
+function rand(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function addStainRandom() {
+  if (!faceEl) return;
+
+  const stain = document.createElement("div");
+  stain.className = "stain";
+
+  // Keep stains within the face area
+  const x = rand(24, 76);
+  const y = rand(28, 72);
+
+  stain.style.left = `${x}%`;
+  stain.style.top = `${y}%`;
+  stain.style.setProperty("--rot", `${rand(-35, 35)}deg`);
+
+  // random size variety
+  const w = rand(18, 30);
+  const h = rand(14, 26);
+  stain.style.width = `${w}px`;
+  stain.style.height = `${h}px`;
+
+  faceEl.appendChild(stain);
+
+  // cap total stains so it doesn't become too heavy
+  const stains = faceEl.querySelectorAll(".stain");
+  if (stains.length > 14) stains[0].remove();
+}
+
+function splatAtFace(xPct, yPct) {
+  if (!faceEl) return;
+
+  const splat = document.createElement("div");
+  splat.className = "splat";
+  splat.style.left = `${xPct}%`;
+  splat.style.top = `${yPct}%`;
+  faceEl.appendChild(splat);
+
+  setTimeout(() => splat.remove(), 700);
+}
+
+function throwTomato() {
+  if (!playCard || !faceEl) return;
+
+  // projectile starts near bottom-left area of the card
+  const proj = document.createElement("div");
+  proj.className = "tomatoProjectile";
+  playCard.appendChild(proj);
+
+  // Get face position relative to playCard
+  const cardRect = playCard.getBoundingClientRect();
+  const faceRect = faceEl.getBoundingClientRect();
+
+  const startX = cardRect.left + 40;
+  const startY = cardRect.bottom - 120;
+
+  const targetX = faceRect.left + faceRect.width * rand(0.28, 0.72);
+  const targetY = faceRect.top + faceRect.height * rand(0.32, 0.70);
+
+  // place projectile at start
+  proj.style.left = `${startX - cardRect.left}px`;
+  proj.style.top = `${startY - cardRect.top}px`;
+
+  // animate to target
+  const duration = 220 + Math.floor(Math.random() * 70);
+
+  proj.animate(
+    [
+      { transform: "translate(-50%,-50%) scale(1)", opacity: 0.95 },
+      { transform: "translate(-50%,-50%) scale(0.95)", opacity: 0.95 }
+    ],
+    { duration, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" }
+  );
+
+  proj.style.transition = `left ${duration}ms cubic-bezier(.2,.8,.2,1), top ${duration}ms cubic-bezier(.2,.8,.2,1)`;
+  requestAnimationFrame(() => {
+    proj.style.left = `${targetX - cardRect.left}px`;
+    proj.style.top = `${targetY - cardRect.top}px`;
+  });
+
+  // When it "hits", create splat + stain, remove projectile
+  setTimeout(() => {
+    // compute splat point in face percent coords
+    const xPct = ((targetX - faceRect.left) / faceRect.width) * 100;
+    const yPct = ((targetY - faceRect.top) / faceRect.height) * 100;
+
+    splatAtFace(xPct, yPct);
+    addStainRandom();
+
+    proj.remove();
+  }, duration);
+}
+
+/* =========================
+   Tears
+   ========================= */
+
+function spawnTears() {
+  if (!faceEl) return;
   const count = Math.floor(Math.random() * 3) + 2;
   for (let i = 0; i < count; i++) {
     const tear = document.createElement("div");
     tear.className = "tear";
-
     const xBase = Math.random() < 0.5 ? 28 : 72;
     tear.style.left = (xBase + (Math.random() * 6 - 3)) + "%";
     tear.style.top = "46%";
-
-    face.appendChild(tear);
+    faceEl.appendChild(tear);
     setTimeout(() => tear.remove(), 1000);
   }
 }
@@ -339,6 +436,10 @@ function stopCrying() {
     cryingInterval = null;
   }
 }
+
+/* =========================
+   Combos / reactions
+   ========================= */
 
 function updateCombo() {
   const now = Date.now();
@@ -378,27 +479,9 @@ function endingNarration() {
   return "Xrpn wins. San loses.";
 }
 
-/* --------- FIXED ENABLE/DISABLE LOGIC ---------- */
-function setToolButtonsEnabled(enabled) {
-  toolButtons.forEach(btn => (btn.disabled = !enabled));
-}
-
-/* IMPORTANT:
-   - Reset should remain enabled even when San dies.
-   - Reset should be disabled ONLY when blocked.
-*/
-function setResetEnabled(enabled) {
-  if (!resetBtn) return;
-  resetBtn.disabled = !enabled;
-}
-
-function setActiveToolButton(toolName) {
-  toolButtons.forEach(btn => {
-    const active = btn.dataset.tool === toolName;
-    btn.classList.toggle("active", active);
-    btn.setAttribute("aria-selected", active ? "true" : "false");
-  });
-}
+/* =========================
+   Core update / hit
+   ========================= */
 
 function updateHealth() {
   health = Math.max(0, Math.min(100, health));
@@ -409,7 +492,6 @@ function updateHealth() {
   if (healthText) healthText.textContent = "HP: " + health + "%";
 
   if (ANALYTICS.blocked) {
-    // If blocked, everything stays disabled.
     setToolButtonsEnabled(false);
     setResetEnabled(false);
     return;
@@ -418,8 +500,6 @@ function updateHealth() {
   if (health === 0) {
     buddy.classList.add("dead");
     mouth.classList.add("sad");
-
-    // Disable only tools, keep reset enabled (FIX)
     setToolButtonsEnabled(false);
     setResetEnabled(true);
 
@@ -433,7 +513,6 @@ function updateHealth() {
   } else {
     buddy.classList.remove("dead");
     mouth.classList.remove("sad");
-
     setToolButtonsEnabled(true);
     setResetEnabled(true);
 
@@ -467,8 +546,15 @@ function triggerHit() {
   void buddy.offsetWidth;
   buddy.classList.add("hit");
 
-  spawnTears();
+  // SFX
   if (sfx[currentTool]) sfx[currentTool].play();
+
+  // Tool-specific visuals
+  if (currentTool === "tomato") {
+    throwTomato(); // splat + stain (also leaves stain)
+  } else {
+    spawnTears();
+  }
 
   const didOverreact = triggerOverreaction();
 
@@ -492,7 +578,28 @@ function triggerHit() {
   showSpeech(msg, 1400);
 }
 
-/* Events */
+/* =========================
+   XRPN taps
+   ========================= */
+
+function xrpnTap() {
+  xrpnTapCount++;
+  if (xrpnTapTimer) clearTimeout(xrpnTapTimer);
+  xrpnTapTimer = setTimeout(() => { xrpnTapCount = 0; }, 1200);
+
+  if (xrpnTapCount === 1) return showSpeech("Xrpn: …", 700);
+  if (xrpnTapCount === 2) return showSpeech("Xrpn: Don’t touch Xrpn.", 1000);
+  if (xrpnTapCount >= 3) {
+    xrpnTapCount = 0;
+    xrpnShieldNextHit = true;
+    return showSpeech("Xrpn intervened. Next hit is blocked.", 1400);
+  }
+}
+
+/* =========================
+   Event wiring
+   ========================= */
+
 buddy.addEventListener("pointerdown", (e) => { e.preventDefault(); triggerHit(); });
 buddy.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); triggerHit(); }
@@ -501,10 +608,14 @@ buddy.addEventListener("keydown", (e) => {
 toolButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     if (ANALYTICS.blocked) return;
-    if (health <= 0) return; // prevent selecting tools when dead (tools should be disabled anyway)
+    if (health <= 0) return;
 
     currentTool = btn.dataset.tool;
-    setActiveToolButton(currentTool);
+    toolButtons.forEach(b => {
+      const active = b.dataset.tool === currentTool;
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-selected", active ? "true" : "false");
+    });
 
     const judge = maybeXrpnJudgement(currentTool);
     showSpeech(judge ? judge : `Selected: ${tools[currentTool].name}`, 1000);
@@ -526,6 +637,11 @@ resetBtn.addEventListener("click", () => {
   xrpnShieldNextHit = false;
   stopCrying();
 
+  // Clear stains on reset (optional but recommended)
+  if (faceEl) {
+    faceEl.querySelectorAll(".stain").forEach(n => n.remove());
+  }
+
   updateHealth();
   showSpeech("Reset done. Select a tool and tap on San.", 1400);
 });
@@ -541,7 +657,11 @@ if (cssCat) {
 
 /* Init */
 setMute(false);
-setActiveToolButton(currentTool);
+toolButtons.forEach(btn => {
+  const active = btn.dataset.tool === currentTool;
+  btn.classList.toggle("active", active);
+  btn.setAttribute("aria-selected", active ? "true" : "false");
+});
 updateHealth();
 showSpeech("Select a tool and tap on San.", 1200);
 analyticsStart();
