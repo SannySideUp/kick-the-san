@@ -699,7 +699,7 @@ resetBtn.addEventListener("click", () => {
 
   // Clear stains on reset (optional but recommended)
   if (faceEl) {
-    faceEl.querySelectorAll(".stain").forEach(n => n.remove());
+    faceEl.querySelectorAll(".stain, .bananaStain").forEach(n => n.remove());
   }
 
   updateHealth();
