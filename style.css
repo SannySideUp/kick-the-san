@@ -456,6 +456,36 @@ body{
 }
 
 /* =========================
+   Banana projectile & splat
+   ========================= */
+
+.bananaProjectile {
+  position: absolute;
+  width: 22px;
+  height: 10px;
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255,255,255,0.5), transparent 55%),
+    linear-gradient(180deg, #ffe066, #ffcc33);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+  transform: translate(-50%, -50%) rotate(18deg);
+}
+
+.bananaStain {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 999px;
+  opacity: 0.85;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 55%),
+    linear-gradient(180deg, #ffd84d, #e6b800);
+  filter: saturate(1.05);
+}
+
+
+/* =========================
    Tomato splat / stains
    ========================= */
 
