@@ -190,7 +190,9 @@ const tools = {
   bat: { name: "Bat", damage: 15, messages: ["Yara, I crave the cruelty of your bat!","I think you broke my legs!","okay that one did not hurt."] },
   knife: { name: "Knife", damage: 20, messages: ["NOOO my hands, now I can't text Yara.","Yara I think thats enough, you don't need two kidneys.","Yara please no more."] },
   gun: { name: "Gun", damage: 99, messages: ["Just finish it off im already dying here.","I did not know you hated me that much.","You might as well just delete me from the screen."] },
-  tomato: { name: "Tomato", damage: 5, messages: ["Ew. Tomato juice in my eyes.","That was disrespectful.","Not the face 😭"] }
+  tomato: { name: "Tomato", damage: 5, messages: ["Ew. Tomato juice in my eyes.","That was disrespectful.","Not the face 😭"] },
+   banana: { name: "Banana", damage: 7, messages: ["You threw a banana. That’s disrespectful.","Why is it always a banana?","Slippery violence.","This feels cartoonish."] }
+
 };
 
 const xrpnComments = [
@@ -261,6 +263,8 @@ const sfx = {
   tomato: null
 };
 sfx.tomato = sfx.squish;
+sfx.banana = sfx.squish;
+
 
 /* -------- UI helpers -------- */
 
@@ -404,6 +408,60 @@ function throwTomato() {
     proj.remove();
   }, duration);
 }
+
+function addBananaStain() {
+  if (!faceEl) return;
+
+  const stain = document.createElement("div");
+  stain.className = "bananaStain";
+
+  stain.style.left = `${rand(25, 75)}%`;
+  stain.style.top = `${rand(30, 75)}%`;
+  stain.style.width = `${rand(18, 26)}px`;
+  stain.style.height = `${rand(10, 16)}px`;
+  stain.style.setProperty("--rot", `${rand(-40, 40)}deg`);
+
+  faceEl.appendChild(stain);
+
+  const stains = faceEl.querySelectorAll(".bananaStain");
+  if (stains.length > 10) stains[0].remove();
+}
+
+function throwBanana() {
+  if (!playCard || !faceEl) return;
+
+  const proj = document.createElement("div");
+  proj.className = "bananaProjectile";
+  playCard.appendChild(proj);
+
+  const cardRect = playCard.getBoundingClientRect();
+  const faceRect = faceEl.getBoundingClientRect();
+
+  const startX = cardRect.left + 50;
+  const startY = cardRect.bottom - 120;
+
+  const targetX = faceRect.left + faceRect.width * rand(0.3, 0.7);
+  const targetY = faceRect.top + faceRect.height * rand(0.35, 0.7);
+
+  proj.style.left = `${startX - cardRect.left}px`;
+  proj.style.top = `${startY - cardRect.top}px`;
+
+  const duration = 240;
+
+  proj.style.transition =
+    `left ${duration}ms cubic-bezier(.2,.8,.2,1), top ${duration}ms cubic-bezier(.2,.8,.2,1)`;
+
+  requestAnimationFrame(() => {
+    proj.style.left = `${targetX - cardRect.left}px`;
+    proj.style.top = `${targetY - cardRect.top}px`;
+  });
+
+  setTimeout(() => {
+    addBananaStain();
+    proj.remove();
+  }, duration);
+}
+
 
 /* =========================
    Tears
@@ -549,12 +607,14 @@ function triggerHit() {
   // SFX
   if (sfx[currentTool]) sfx[currentTool].play();
 
-  // Tool-specific visuals
-  if (currentTool === "tomato") {
-    throwTomato(); // splat + stain (also leaves stain)
-  } else {
-    spawnTears();
-  }
+   if (currentTool === "tomato") {
+     throwTomato();
+   } else if (currentTool === "banana") {
+     throwBanana();
+   } else {
+     spawnTears();
+   }
+
 
   const didOverreact = triggerOverreaction();
 
