@@ -171,6 +171,8 @@ let health = 100;
 let currentTool = "punch";
 let isMuted = false;
 let hasPlayedDeathSound = false;
+let isRagdoll = false;
+let ragdollTimer = null;
 
 const stats = {
   hitsTotal: 0,
@@ -309,6 +311,38 @@ function setResetEnabled(enabled) {
   if (!resetBtn) return;
   resetBtn.disabled = !enabled;
 }
+function setGameplayEnabled(enabled) {
+  // tools on/off, but reset always stays usable unless blocked
+  setToolButtonsEnabled(enabled);
+  setResetEnabled(!ANALYTICS.blocked);
+}
+
+function startRagdoll(ms = 900) {
+  if (health <= 0 || ANALYTICS.blocked) return;
+  if (isRagdoll) return;
+
+  isRagdoll = true;
+
+  // Disable tools while he's down to avoid weird double states
+  setGameplayEnabled(false);
+
+  buddy.classList.remove("ragdollRecover");
+  buddy.classList.add("ragdoll", "isDown");
+
+  if (ragdollTimer) clearTimeout(ragdollTimer);
+  ragdollTimer = setTimeout(() => {
+    buddy.classList.remove("ragdoll");
+    buddy.classList.add("ragdollRecover");
+    setTimeout(() => buddy.classList.remove("ragdollRecover"), 420);
+
+    buddy.classList.remove("isDown");
+    isRagdoll = false;
+
+    // Re-enable tools if he’s alive and not blocked
+    if (!ANALYTICS.blocked && health > 0) setGameplayEnabled(true);
+  }, ms);
+}
+
 
 /* =========================
    Tomato visuals
@@ -580,6 +614,7 @@ function updateHealth() {
 }
 
 function triggerHit() {
+   if (isRagdoll) return;
   if (ANALYTICS.blocked) return;
   if (health <= 0) return;
 
@@ -611,6 +646,9 @@ function triggerHit() {
      throwTomato();
    } else if (currentTool === "banana") {
      throwBanana();
+      if (Math.random() < 0.65) startRagdoll(900);
+      else showSpeech("You almost made me slip.", 900);
+
    } else {
      spawnTears();
    }
@@ -684,6 +722,10 @@ toolButtons.forEach(btn => {
 
 resetBtn.addEventListener("click", () => {
   if (ANALYTICS.blocked) return;
+   if (ragdollTimer) clearTimeout(ragdollTimer);
+   isRagdoll = false;
+   buddy.classList.remove("ragdoll", "ragdollRecover", "isDown");
+
 
   health = 100;
   hasPlayedDeathSound = false;
